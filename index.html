@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Natural Language Processing and the Human Record - Spring 2024</title>
+    	<style>
+        	body {
+            	font-family: Arial, sans-serif;
+            	line-height: 1.6;
+            	margin: 0;
+            	padding: 20px;
+            	max-width: 800px;
+            	margin: 0 auto;
+        	}
+            h1 {
+                color: #333;
+            }
+            ul {
+                padding-left: 20px;
+            }
+            li {
+                margin-bottom: 10px;
+            }
+            a {
+                color: #0366d6;
+                text-decoration: none;
+            }
+            a:hover {
+                text-decoration: underline;
+            }
+    </style>
+</head>
+<body>
+    <h1>Notebooks</h1>
+    <ul id="notebook-list">
+        <!-- Notebook links added here -->
+    </ul>
+
+    <script>
+        async function loadNotebooks() {
+            const response = await fetch('https://api.github.com/repos/YOUR_USERNAME/YOUR_REPO_NAME/contents/html');
+            const files = await response.json();
+            const notebookList = document.getElementById('notebook-list');
+            
+            files.forEach(file => {
+                if (file.name.endsWith('.html')) {
+                    const li = document.createElement('li');
+                    const a = document.createElement('a');
+                    a.href = `html/${file.name}`;
+                    a.textContent = file.name.replace('.html', '');
+                    li.appendChild(a);
+                    notebookList.appendChild(li);
+                }
+            });
+        }
+
+        loadNotebooks();
+    </script>
+</body>
+</html>
