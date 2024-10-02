@@ -31,13 +31,15 @@ Students will be responsible for a final project which is meant to apply any of 
     *Nota Bene: Class participation consists of class attendance, office hours and engagement with course material. It is meant to give credit for your interest and enthuiasm with the course material. It is expected that all students will view the required videos, read the required articles, cases, chapters and other materials, and participate in online discussion forums. I reserve the right to adjust a grade if these requirements are not fulfilled.*
 
 **Grading range:** A passing grade in the course is B- or better. Course grades will be based on the below ranges (subject to revision during the course):
-|Grade | Range |
-| :----: | :-----: |
-| A    | > 94% |
-| A-   |90 - <94%|
-| B+   |87 - <90%|
-|B     |84 - <87%|
-|B-	   |80 - <84%|
+
+Grade   Range
+-----   -----
+A       > 94%
+A-      90 - <94%
+B+      87 - <90%
+B       84 - <87%
+B-      80 - <84%
+---
 
 **Submission of Graded Material**: Assignment due dates will be specified on Canvas. Assignments received after their deadline will be penalized ten points per day unless extension is approved in advance. Students who are unable to complete an assignment or exam on time for any reason should notify the instructor by email prior to the deadline, with a brief explanation for why the extension is needed.
 
