@@ -1,0 +1,3 @@
+# Course description
+
+This course provides an overview of computational methods for studying language, especially historical and under-resourced languages. The human record is a vivid tapestry that gives invaluable insight into how humans have lived for thousands of years. However, studying this diverse record provides unique computational challenges. Students will choose a historical or under-resourced language of interest and learn methods of analyzing it. Case studies will be provided, and students will learn about token classification, webscraping, RNNs, transformers and large language models (LLMs). Intermediate Python programming skills are expected, CLS 161/DH 101 or equivalent experience is a prerequisite.
