@@ -7,9 +7,9 @@
 
 **Instructor Office Housrs:** *online*, [visit this link to set up a meeting with me](go.tufts.edu/peter)
 
-**Prerequisite:** CLS 161/DH ???: Introduction to Digital Humanities is a prerequisite for this course. Students with an intermediate background in Python and experience in the Humanities may be admitted with instructor permission. Students are also encouraged to take CLS 160/DH ???: Quantitative Text Analysis. 
+**Prerequisite:** CLS 161/DH 101: Introduction to Digital Humanities is a prerequisite for this course. Students with an intermediate background in Python and experience in the Humanities may be admitted with instructor permission. Students are also encouraged to take CLS 160/DH 102: Quantitative Text Analysis. 
 
-**Semester Hour Units (SHUs):** 3??? credits
+**Semester Hour Units (SHUs):** 3 credits
 
 ## Course overview
 Welcome to Natural Language Processing and the Human Record! This course is the seminar-level offering from the Digital Humanities (DH) minor. A predominant theme in the course will be the study and analysis of *under-resourced* languages: languages, historical or contemporary, which have limited technological support, like grammars, parsers and machine-translation. As natural language processing (NLP) becomes more and more critical scholarship, these languages tend to be crowded out by well-resourced counterparts like English, French and Mandarin Chinese. In this course, we will look at new ways of addressing these problems. 
@@ -31,16 +31,17 @@ Students will be responsible for a final project which is meant to apply any of 
     *Nota Bene: Class participation consists of class attendance, office hours and engagement with course material. It is meant to give credit for your interest and enthuiasm with the course material. It is expected that all students will view the required videos, read the required articles, cases, chapters and other materials, and participate in online discussion forums. I reserve the right to adjust a grade if these requirements are not fulfilled.*
 
 **Grading range:** A passing grade in the course is C- or better. Course grades will be based on the below ranges (subject to revision during the course):
-LOOK INTO THIS ^^
 
-Grade   Range
------   -----
-A       > 94%
-A-      90 - <94%
-B+      87 - <90%
-B       84 - <87%
-B-      80 - <84%
----
+| Grade | Range     |
+| :---  | :--------:|
+| A     |  > 94%    |
+| A-    | 90 - <94% | 
+| B+    | 87 - <90% |
+| B     | 84 - <87% |
+| B-    | 80 - <84% |
+| C+    | 77 - <80% |
+| C     | 73 - <77% |
+| C-    | 70 - <73% |
 
 **Submission of Graded Material**: Assignment due dates will be specified on Canvas. Assignments received after their deadline will be penalized five points per two days unless extension is approved in advance. Students who are unable to complete an assignment or exam on time for any reason should notify the instructor by email prior to the deadline, with a brief explanation for why the extension is needed.
 
@@ -49,23 +50,21 @@ B-      80 - <84%
 **Diversity Statement:** We believe that the diversity of student experiences and perspectives is essential to the deepening of knowledge in this course. We consider it part of our responsibility as instructors to address the learning needs of all of the students in this course. We will present materials that are respectful of diversity: race, color, ethnicity, gender, age, disability, religious beliefs, political preference, sexual orientation, gender identity, socioeconomic status, citizenship, language, or national origin among other personal characteristics.
 
 ## Course Topics and Assignments by Week:
-If run out of time: break up into group to discuss assignment/final project.
 
-Add in reading check-ins: reflect on code vs. the reading
 | Week | Course Topics | Assignments Due | 
 | :--- | :------------ | :-------------- |
 | 1    | <br> &bull; **Syllabus overview** <br> &bull; Understanding NLP <br> &bull; Text classification | <br> &bull; Getting set up with Google Colab
 | 2    | <br> &bull; **Token classification** <br> &bull; Using pretrained model for Named Entity Recognition (NER) <br> &bull; Software used: `spaCy` | <br> &bull; **Assignment 1 assigned** - *Due Week 4* |
 | 3    | <br> &bull; **Token classification** <br> &bull; Using pretrained model for treebanking <br> &bull; Software used: `spaCy` | <br> &bull; **Read**: [Beyond Translation: Language Hacking and Philology](https://hdsr.mitpress.mit.edu/pub/owxwohyz/release/6) | 
-| 4    | <br> &bull; **Webscraping** <br> &bull; Dynamic website design and data collection <br> &bull; Software used: `selenium` and `pandas` | <br> &bull; **Assignment 1 due** <br> &bull; **Assignment 2 assigned** - *Due Week 6* |
-| 5    | <br> &bull; **Webscraping** <br> &bull; Social media data collection <br> &bull; Software used: `selenium`, `snscrape` and `pandas` | <br> &bull; **Read**: [Fading Away... The challenge of sustainability in digital studies](http://digitalhumanities.org:8081/dhq/vol/14/3/000484/000484.html) |
+| 4    | <br> &bull; **Webscraping** <br> &bull; Static webscraping <br> &bull; Software used: `BeautifulSoup` and `pandas` | <br> &bull; **Assignment 1 due** <br> &bull; **Assignment 2 assigned** - *Due Week 6* |
+| 5    | <br> &bull; **Webscraping** <br> &bull; Dynamic website design and data collection <br> &bull; Software used: `selenium` and `pandas` | <br> &bull; **Read**: [Fading Away... The challenge of sustainability in digital studies](http://digitalhumanities.org:8081/dhq/vol/14/3/000484/000484.html) |
 | 6    | <br> &bull; **Token classification** <br> &bull; Manual annotation for token classification <br> &bull; Software used: `Doccano` | <br> &bull; **Assignment 2 due** <br> &bull; **Assignment 3 assigned** - *Due Week 8* |
 | 7    | <br> &bull; **Token classification** <br> &bull; Training new models for token classification <br> &bull; Software used: `spaCy` | <br> &bull; **Read** [Developing Geographically Oriented NLP Approaches to Sixteenth–Century Historical Documents: Digging into Early Colonial Mexico](http://digitalhumanities.org:8081/dhq/vol/14/4/000490/000490.html) |
 | 8    | <br> &bull; **Feature Extraction** <br> &bull; Using word2vec for NER <br> &bull; Software used: `gensim` and `scikit-learn` | <br> &bull; **Assignment 3 due** <br> &bull; **Assignment 4 assigned** - *Due Week 10* |
 | 9    | <br> &bull; **Feature Extraction** <br> &bull; Training word2vec from scratch <br> &bull; Software used: `numpy` | <br> &bull; **Read:** [Efficient Estimation of Word Representations in Vector Space](https://arxiv.org/pdf/1301.3781) | 
 | 10   | <br> &bull; **Recurrent Neural Nets** <br> &bull; Case study: Machine Translation <br> &bull; Software used: `Pytorch` | <br> &bull; **Assignment 4 due** <br> &bull; **Assignment 5 assigned** - *Due Week 12*  |
 | 11   | <br> &bull; **Transformers** <br> &bull; Case study: Decoder-only Architecture, Generative Pretrained Transformers (GPTs) <br> &bull; Software used: `Pytorch` | <br> &bull; **Read** [Language Models are Unsupervised Multitask Learners](https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf) Pages 1-10| 
-| 12   | <br> &bull; **Transformers** <br> &bull; Case study: Encoder-only Architecture, Bidirectional Encoder Representations from Transformers (BERT) <br> &bull; Software used: `Pytorch` | <br> &bull; **Assignment 5 due** <br> &bull; **Final Project first draft assigned** - *Due Week 14* | 
+| 12   | <br> &bull; **Transformers** <br> &bull; Case study: Encoder-only Architecture, Bidirectional Encoder Representations from Transformers (BERT) <br> &bull; Software used: `Pytorch` | <br> &bull; **Assignment 5 due** <br> &bull; **Final Project assigned** - *Due Week 14* | 
 | 13   | <br> &bull; **Tokenizers** <br> &bull; Case study: Byte-Pair Encoding (BPE) Tokenizers <br> &bull; Software used: `HuggingFace` | <br> &bull; **Read** [wHy DoNt YoU jUsT uSe ThE lLaMa ToKeNiZeR??](https://huggingface.co/blog/catherinearnett/dangers-of-tokenizer-recycling) | 
-| 14   | <br> &bull; **Large Language Models** <br> &bull; Case study: Retrieval Augmented Generation <br> &bull; Software used: `HuggingFace` | <br> &bull; **Final Project first draft due** | 
+| 14   | <br> &bull; **Large Language Models** <br> &bull; Case study: Retrieval Augmented Generation <br> &bull; Software used: `HuggingFace` | <br> &bull; **Nothing due**; work on your final projects | 
 | 15   | <br> &bull; **Presentations** | <br> &bull; **Finish Final Project** - Due TBD | 

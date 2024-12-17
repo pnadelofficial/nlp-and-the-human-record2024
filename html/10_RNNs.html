@@ -3,7 +3,7 @@
 <head><meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>5_Webscraping</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
+<title>10_RNNs</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 
 
 
@@ -14572,7 +14572,32 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
     </script>
     <!-- End of mathjax configuration --></head>
 <body class="jp-Notebook" data-jp-theme-light="true" data-jp-theme-name="JupyterLab Light">
-<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h1 id="Machine-Translation-(mostly)-from-Scratch-using-PyTorch">Machine Translation (mostly) from Scratch using <code>PyTorch</code><a class="anchor-link" href="#Machine-Translation-(mostly)-from-Scratch-using-PyTorch">&#182;</a></h1><h6 id="Peter-Nadel-(primary-author),-Kyle-Monahan,-Joseph-Robertson">Peter Nadel (primary author), Kyle Monahan, Joseph Robertson<a class="anchor-link" href="#Peter-Nadel-(primary-author),-Kyle-Monahan,-Joseph-Robertson">&#182;</a></h6><p>In this workshop, we'll build a machine translator using the neural net framework, <code>PyTorch</code>. We will implement the transformer architecture to translate between French and English. We'll then see an example using another dataset.</p>
+<p>Adapted from: <a href="https://pytorch.org/tutorials/intermediate/seq2seq_translation_tutorial.html">https://pytorch.org/tutorials/intermediate/seq2seq_translation_tutorial.html</a></p>
+
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>To make things run a bit faster, go to Runtime &gt; Change runtime Type and select GPU under Hardware Accelerator.</p>
+
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -14580,7 +14605,19 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="n">google</span><span class="o">-</span><span class="n">colab</span><span class="o">-</span><span class="n">selenium</span>
+<div class=" highlight hl-python"><pre><span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">unicode_literals</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">division</span>
+<span class="kn">from</span> <span class="nn">io</span> <span class="kn">import</span> <span class="nb">open</span>
+<span class="kn">import</span> <span class="nn">unicodedata</span>
+<span class="kn">import</span> <span class="nn">string</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">random</span>
+
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="nn">nn</span>
+<span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">optim</span>
+<span class="kn">import</span> <span class="nn">torch.nn.functional</span> <span class="k">as</span> <span class="nn">F</span>
+
+<span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">"cuda"</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s2">"cpu"</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -14595,19 +14632,62 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1 id="Webscraping-II:-Dynamic-websites">Webscraping II: Dynamic websites<a class="anchor-link" href="#Webscraping-II:-Dynamic-websites">&#182;</a></h1><p>In the last notebook, we saw how to use <code>BeautifulSoup</code> to scrape data from a website and read that data into a powerful data structure called a <code>pandas</code> <code>DataFrame</code>. In this notebook, we'll do something very similar again. We'll be taking a website url, passing it through 3rd party software and extracting useful information that we can use to populate a DataFrame. This time, however, we will be scraping a <em>dynamic</em> website, that is a website whose HTML code is generated by an application.</p>
-<h2 id="Our-task">Our task<a class="anchor-link" href="#Our-task">&#182;</a></h2><p>The Packard Humanities Institute runs <a href="https://latin.packhum.org/">this site</a>, which collates and presents various textual data on classical Latin literature. It is a very useful resource, but they do not allow users to download anything,
-so we will give in a search query and scrape the resulting data to a <code>DataFrame</code> and save it.</p>
-<h2 id="Goals:">Goals:<a class="anchor-link" href="#Goals:">&#182;</a></h2><ul>
-<li>Understand what a dynamic website is and how it is different from a static website</li>
-<li>Install <code>Selenium</code> along with it's associated dependencies</li>
-<li>Navigate the content of the site both in <code>Selenium</code> and <code>BeautifulSoup</code></li>
-<li>Get more experience with generating DataFrames</li>
-</ul>
+<h2 id="Data">Data<a class="anchor-link" href="#Data">&#182;</a></h2><p>For this example, we'll use the <code>eng-fra.txt</code> from the <code>data.zip</code> file linked from the <code>PyTorch</code> page. This file, and all of those which we will look at in this notebook, will be arranged in the following way:</p>
+<p><code>sentence_i in lang1\tsentence_i in lang2\n</code>.</p>
+<p>It should be noted that this is where this file comes from: <a href="https://www.manythings.org/anki/">https://www.manythings.org/anki/</a>. There are several other languages here, all with varying corpus sizes. I assume the <code>PyTorch</code> folks chose French/English translation because of the size of the corpus (~14000 aligned sentences). Later in the notebook, I'll switch out this large aligned corpus with one of the smaller corpuses to anticipate working with Dakota.</p>
 
 </div>
 </div>
 </div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-python"><pre><span></span><span class="err">!</span><span class="n">wget</span> <span class="s1">'https://tufts.box.com/shared/static/v5370zthsaiy5m5xqptv9clsndgyyx1i.zip'</span>
+<span class="err">!</span><span class="n">mv</span> <span class="n">v5370zthsaiy5m5xqptv9clsndgyyx1i</span><span class="o">.</span><span class="n">zip</span> <span class="n">data</span><span class="o">.</span><span class="n">zip</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-python"><pre><span></span><span class="err">!</span><span class="n">unzip</span> <span class="n">data</span><span class="o">.</span><span class="n">zip</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-python"><pre><span></span><span class="n">data_path</span> <span class="o">=</span> <span class="s1">'data/eng-fra.txt'</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
 </div>
 <div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
 <div class="jp-Cell-inputWrapper">
@@ -14615,11 +14695,13 @@ so we will give in a search query and scrape the resulting data to a <code>DataF
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="What-is-a-dynamic-website">What is a dynamic website<a class="anchor-link" href="#What-is-a-dynamic-website">&#182;</a></h2><p>Let's delve a bit deeper into what a dynamic website is and why we can't just use <code>BeautifulSoup</code> to parse it as we can with static websites. While a static webpage would require a manual update before content on the site can change, a dynamic website takes advantage of client and server-side scripting to be more adaptable to a user's needs.</p>
+<p>Before we can dig into this file, we need to make a class that will help us keep track of all of the words in our corpus. In particular, we need this case to do two things:</p>
 <ul>
-<li>Client-side scripting: code that is executed by the user's browser, generally using JavaScript. This scripting renders changes to the site when the user interacts with it. This can be anything from selecting a choice in a drop down menu to full fledged games like Wordle. This type of scripting is also common in many static sites.</li>
-<li>Server-side scripting: code that is executed by the server before sending content to the user's browser. This code can be written in a wide varity of languages like Ruby (<code>RubyOnRails</code>), JavaScript (<code>VueJS</code>, <code>NodeJS</code>) and Python (<code>Django</code>, <code>Flask</code>). This code generally gets inputs from querying a database associated with the site and outputs HTML code from a template. This way, programmers can update elements in their sites without having to rewrite large sections of it. But, it also means that the HTML is not yet generated when we do a get request.</li>
+<li>Give each word a unique ID</li>
+<li>One-hot encode each word at the index of its ID</li>
+<li>This class will also give us the opportunity to encode our start of sentence (SOS) and end of sentence (EOS) tokens, which we'll place at the beginning and end of each sentence.</li>
 </ul>
+<p>Let's start by tracking how many times each word occurs.</p>
 
 </div>
 </div>
@@ -14632,10 +14714,113 @@ so we will give in a search query and scrape the resulting data to a <code>DataF
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">IFrame</span>
+<div class=" highlight hl-python"><pre><span></span><span class="n">SOS_token</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">EOS_token</span> <span class="o">=</span> <span class="mi">1</span>
 
-<span class="n">phi_url</span> <span class="o">=</span> <span class="s2">"https://latin.packhum.org/"</span>
-<span class="n">IFrame</span><span class="p">(</span><span class="n">phi_url</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">800</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">Lang</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">word2index</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">word2count</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">index2word</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="s2">"SOS"</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="s2">"EOS"</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_words</span> <span class="o">=</span> <span class="mi">2</span>  <span class="c1"># Count SOS and EOS</span>
+
+    <span class="k">def</span> <span class="nf">addSentence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sentence</span><span class="p">):</span>
+        <span class="n">word_list</span> <span class="o">=</span> <span class="n">sentence</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">'</span><span class="se">\t</span><span class="s1">'</span><span class="p">,</span> <span class="s1">' '</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">' '</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">word_list</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">addWord</span><span class="p">(</span><span class="n">word</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">addWord</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">word</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">word</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">word2index</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">word2index</span><span class="p">[</span><span class="n">word</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_words</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">word2count</span><span class="p">[</span><span class="n">word</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">index2word</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">n_words</span><span class="p">]</span> <span class="o">=</span> <span class="n">word</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">n_words</span> <span class="o">+=</span> <span class="mi">1</span> <span class="c1"># increments on each new word</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">word2count</span><span class="p">[</span><span class="n">word</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span> <span class="c1"># increments on individual word</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-python"><pre><span></span><span class="n">ex_data</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">data_path</span><span class="p">)</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+<span class="n">ex_data</span><span class="p">[</span><span class="mi">300</span><span class="p">]</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-python"><pre><span></span><span class="n">ex</span> <span class="o">=</span> <span class="n">Lang</span><span class="p">(</span><span class="s1">'ex'</span><span class="p">)</span>
+<span class="n">ex</span><span class="o">.</span><span class="n">addSentence</span><span class="p">(</span><span class="n">ex_data</span><span class="p">[</span><span class="mi">300</span><span class="p">])</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-python"><pre><span></span><span class="n">ex</span><span class="o">.</span><span class="n">word2index</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-python"><pre><span></span><span class="n">ex</span><span class="o">.</span><span class="n">word2count</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-python"><pre><span></span><span class="n">ex</span><span class="o">.</span><span class="n">index2word</span>
 </pre></div>
 
      </div>
@@ -14650,27 +14835,9 @@ so we will give in a search query and scrape the resulting data to a <code>DataF
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>We can easly pass the HTML for this page into <code>BeautifulSoup</code>, but we can't interact with the page. We need to click the "Click here if you agree to this License", but we don't yet know how. What tool can we use to interact with the webpage and give us back the result of that interaction?</p>
-<p>The answer is: <code>Selenium</code>.</p>
-
-</div>
-</div>
-</div>
-</div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Getting-started-with-Selenium">Getting started with <code>Selenium</code><a class="anchor-link" href="#Getting-started-with-Selenium">&#182;</a></h2><p>The syntax for <code>selenium</code> can be quite confusing compared to <code>BeautifulSoup</code>. Almost everything you do in <code>selenium</code> will go through a <code>WebDriver</code> object, below called <code>driver</code>. You should think of this a browser window on your own computer. We can do a variety of things with a <code>driver</code>, but most important are:</p>
-<ol>
-<li>Submit a GET request to a webapge;</li>
-<li>Find elements on a page (like <code>BeautifulSoup</code>);</li>
-<li>Create a screenshot of what the page looks like;</li>
-<li>Click on elements;</li>
-<li>And write characters into an input box.</li>
-</ol>
+<p>We have a slight problem here. <code>I'm</code> is not a word. Instead, it's two words. In fact, we want our model to be able to understand contractions like this, but we'll first need to strip out all of the punctuation.</p>
+<p>Too, because this data is <code>unicode</code> encoded, we'll need to convert it to <code>ASCII</code>. This step will be especially important when we need to work with languages that do not use the Latin alphabet.</p>
+<p>The code below does both.</p>
 
 </div>
 </div>
@@ -14683,9 +14850,17 @@ so we will give in a search query and scrape the resulting data to a <code>DataF
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="kn">import</span> <span class="nn">google_colab_selenium</span> <span class="k">as</span> <span class="nn">gs</span> <span class="c1"># from the google-colab-selenium package, will be different if you want to do this locally</span>
+<div class=" highlight hl-python"><pre><span></span><span class="k">def</span> <span class="nf">unicodeToAscii</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="k">return</span> <span class="s1">''</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">unicodedata</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="s1">'NFD'</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">unicodedata</span><span class="o">.</span><span class="n">category</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">!=</span> <span class="s1">'Mn'</span>
+    <span class="p">)</span>
 
-<span class="n">driver</span> <span class="o">=</span> <span class="n">gs</span><span class="o">.</span><span class="n">Chrome</span><span class="p">()</span> <span class="c1"># driver object is the main entry point for selenium</span>
+<span class="k">def</span> <span class="nf">normalizeString</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">unicodeToAscii</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">"([.!?])"</span><span class="p">,</span> <span class="sa">r</span><span class="s2">" \1"</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">"[^a-zA-Z.!?]+"</span><span class="p">,</span> <span class="sa">r</span><span class="s2">" "</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">s</span>
 </pre></div>
 
      </div>
@@ -14701,27 +14876,9 @@ so we will give in a search query and scrape the resulting data to a <code>DataF
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="c1"># just like using requests, we will use a GET request</span>
-<span class="n">driver</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">phi_url</span><span class="p">)</span> <span class="c1"># this time its method on driver</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="kn">from</span> <span class="nn">selenium.webdriver.common.by</span> <span class="kn">import</span> <span class="n">By</span> <span class="c1"># allows us to select by different things</span>
-
-<span class="n">enter</span> <span class="o">=</span> <span class="n">driver</span><span class="o">.</span><span class="n">find_element</span><span class="p">(</span><span class="n">By</span><span class="o">.</span><span class="n">CLASS_NAME</span><span class="p">,</span> <span class="s2">"lic"</span><span class="p">)</span> <span class="c1"># selecting by class name</span>
-<span class="n">enter</span><span class="o">.</span><span class="n">click</span><span class="p">()</span> <span class="c1"># selenium allows us to click!</span>
+<div class=" highlight hl-python"><pre><span></span><span class="c1"># split up I'm and normalized the text</span>
+<span class="c1"># we'll turn i m -&gt; i am soon</span>
+<span class="n">normalizeString</span><span class="p">(</span><span class="n">ex_data</span><span class="p">[</span><span class="mi">300</span><span class="p">])</span>
 </pre></div>
 
      </div>
@@ -14736,8 +14893,7 @@ so we will give in a search query and scrape the resulting data to a <code>DataF
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Navigating-using-Selenium">Navigating using <code>Selenium</code><a class="anchor-link" href="#Navigating-using-Selenium">&#182;</a></h2><p>At this point, we will start to use <code>Selenium</code> to <strong>automate the actions we would normally make</strong>. This is incredibly powerful. It means that anything you can do once in your own browser, you can replicate in <code>Selenium</code>, so you can link up any research process you have to Python, scraping and collecting along the way. Oftentimes though, <code>Selenium</code> is not as reliable as you might expect and does things in a "illogical" or "weird" way. As a result, you need to foster a sense of what <code>Selenium</code> will do for any given action.</p>
-<p>As always, adding logging and print statement can be very useful.</p>
+<p>Now we can set up a method to read in the whole file, pair up the aligned sentences and read them into our <code>Lang</code> class. We'll keep it as general as possible so we can swap in another dataset later.</p>
 
 </div>
 </div>
@@ -14750,114 +14906,25 @@ so we will give in a search query and scrape the resulting data to a <code>DataF
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">Image</span>
+<div class=" highlight hl-python"><pre><span></span><span class="k">def</span> <span class="nf">readLangs</span><span class="p">(</span><span class="n">lang1</span><span class="p">,</span> <span class="n">lang2</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Reading lines..."</span><span class="p">)</span>
 
-<span class="k">def</span> <span class="nf">take_and_show_screenshot</span><span class="p">(</span><span class="n">driver</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
-    <span class="n">driver</span><span class="o">.</span><span class="n">save_screenshot</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="c1"># driver can take a screenshot</span>
-    <span class="k">return</span> <span class="n">Image</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">)</span>
+    <span class="c1"># Read the file and split into lines</span>
+    <span class="n">lines</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="sa">f</span><span class="s1">'data/</span><span class="si">{</span><span class="n">lang1</span><span class="si">}</span><span class="s1">-</span><span class="si">{</span><span class="n">lang2</span><span class="si">}</span><span class="s1">.txt'</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">'utf-8'</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
 
-<span class="n">take_and_show_screenshot</span><span class="p">(</span><span class="n">driver</span><span class="p">,</span> <span class="s2">"enter_button.png"</span><span class="p">)</span>
-</pre></div>
+    <span class="c1"># Split every line on the tab character and normalize</span>
+    <span class="n">pairs</span> <span class="o">=</span> <span class="p">[[</span><span class="n">normalizeString</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">l</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">'</span><span class="se">\t</span><span class="s1">'</span><span class="p">)]</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">]</span>
 
-     </div>
-</div>
-</div>
-</div>
+    <span class="c1"># Reverse pairs for when we want to go from lang2 to lang1</span>
+    <span class="k">if</span> <span class="n">reverse</span><span class="p">:</span>
+        <span class="n">pairs</span> <span class="o">=</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="n">p</span><span class="p">))</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pairs</span><span class="p">]</span>
+        <span class="n">input_lang</span> <span class="o">=</span> <span class="n">Lang</span><span class="p">(</span><span class="n">lang2</span><span class="p">)</span>
+        <span class="n">output_lang</span> <span class="o">=</span> <span class="n">Lang</span><span class="p">(</span><span class="n">lang1</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">input_lang</span> <span class="o">=</span> <span class="n">Lang</span><span class="p">(</span><span class="n">lang1</span><span class="p">)</span>
+        <span class="n">output_lang</span> <span class="o">=</span> <span class="n">Lang</span><span class="p">(</span><span class="n">lang2</span><span class="p">)</span>
 
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="n">list_elements</span> <span class="o">=</span> <span class="n">driver</span><span class="o">.</span><span class="n">find_elements</span><span class="p">(</span><span class="n">By</span><span class="o">.</span><span class="n">TAG_NAME</span><span class="p">,</span> <span class="s2">"li"</span><span class="p">)</span>
-<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">element</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">list_elements</span><span class="p">):</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">"Element number:"</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="s2">"; Text: "</span><span class="p">,</span> <span class="n">element</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="c1"># second element is "Word Search"</span>
-<span class="n">list_elements</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">click</span><span class="p">()</span> <span class="c1"># click on it</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="n">take_and_show_screenshot</span><span class="p">(</span><span class="n">driver</span><span class="p">,</span> <span class="s2">"word_search.png"</span><span class="p">)</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="n">search_term</span> <span class="o">=</span> <span class="s2">"artifex"</span> <span class="c1"># "artist" in latin</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="n">search_bar</span> <span class="o">=</span> <span class="n">driver</span><span class="o">.</span><span class="n">find_element</span><span class="p">(</span><span class="n">By</span><span class="o">.</span><span class="n">TAG_NAME</span><span class="p">,</span> <span class="s2">"input"</span><span class="p">)</span>
-<span class="n">search_bar</span><span class="o">.</span><span class="n">send_keys</span><span class="p">(</span><span class="n">search_term</span><span class="p">)</span> <span class="c1"># send keys inputs the characters into a web element</span>
-<span class="n">search_bar</span><span class="o">.</span><span class="n">send_keys</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span> <span class="c1"># equal to hitting enter</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="n">take_and_show_screenshot</span><span class="p">(</span><span class="n">driver</span><span class="p">,</span> <span class="s2">"search_results.png"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">input_lang</span><span class="p">,</span> <span class="n">output_lang</span><span class="p">,</span> <span class="n">pairs</span>
 </pre></div>
 
      </div>
@@ -14872,15 +14939,58 @@ so we will give in a search query and scrape the resulting data to a <code>DataF
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Starting-on-our-task">Starting on our task<a class="anchor-link" href="#Starting-on-our-task">&#182;</a></h2><p>As I mentioned above, our task in this notebook is to collect search results. PHI will take in a search term, as we showed above, and return all times that that term appears in its corpus of Latin texts. It will give one line above and one line below. We would like to get all of this passages and organize them into a <code>DataFrame</code>, making sure to track the author, title and citation of the work.</p>
-<h3 id="XPATH">XPATH<a class="anchor-link" href="#XPATH">&#182;</a></h3><p>Above we used <code>CLASS_NAME</code> and <code>TAG_NAME</code> to select web elements, but what if we need a more complex query? When using <code>BeautifulSoup</code>, we can use the <code>attrs</code> keyword argument in <code>find</code> and <code>find_all</code> to create complex queries. In <code>Selenium</code> we use the <code>By.XPATH</code> option. What is XPATH? XML Path Language or XPATH is a simple expression language designed to query markup language documents, like XML and HTML. The syntax can look hard, but here are the key things to keep in mind:</p>
+<p>We also want a way to control the size of the sentence that we'll pass into our translator. Right now, we want to train a translator quickly so we'll set it to be small, but we can increase this for a better translator (that will take longer to train).</p>
+
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-python"><pre><span></span><span class="n">MAX_LENGTH</span> <span class="o">=</span> <span class="mi">50</span>
+
+<span class="c1"># dealing with most contractions</span>
+<span class="n">eng_prefixes</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">"i am "</span><span class="p">,</span> <span class="s2">"i m "</span><span class="p">,</span>
+    <span class="s2">"he is"</span><span class="p">,</span> <span class="s2">"he s "</span><span class="p">,</span>
+    <span class="s2">"she is"</span><span class="p">,</span> <span class="s2">"she s "</span><span class="p">,</span>
+    <span class="s2">"you are"</span><span class="p">,</span> <span class="s2">"you re "</span><span class="p">,</span>
+    <span class="s2">"we are"</span><span class="p">,</span> <span class="s2">"we re "</span><span class="p">,</span>
+    <span class="s2">"they are"</span><span class="p">,</span> <span class="s2">"they re "</span>
+<span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">filterPair</span><span class="p">(</span><span class="n">p</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">' '</span><span class="p">))</span> <span class="o">&lt;</span> <span class="n">MAX_LENGTH</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">' '</span><span class="p">))</span> <span class="o">&lt;</span> <span class="n">MAX_LENGTH</span> <span class="ow">and</span> <span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">eng_prefixes</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">filterPairs</span><span class="p">(</span><span class="n">pairs</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">pair</span> <span class="k">for</span> <span class="n">pair</span> <span class="ow">in</span> <span class="n">pairs</span> <span class="k">if</span> <span class="n">filterPair</span><span class="p">(</span><span class="n">pair</span><span class="p">)]</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<p>The full data processing pipeline is as follows:</p>
 <ul>
-<li><code>/</code> navigates through the markup tree through the tags between the slash;</li>
-<li><code>//</code> gets the following tag name and starts the query there;</li>
-<li><code>@</code> indicates an attribute.</li>
+<li>Read text file and split into lines, then split those lines into pairs</li>
+<li>Normalize each pair and filter by length</li>
+<li>Make word lists from the sentence pairs</li>
 </ul>
-<p>The query below <code>//div[@id='results']/ul/li</code> tells <code>Selenium</code> to start at the first <code>div</code> tag with attribute <code>id='results'</code> and then get the first <code>ul</code> tags and then get all of the <code>li</code> tags.</p>
-<p>To learn more visit <a href="https://developer.mozilla.org/en-US/docs/Web/XPath">this page</a>.</p>
+<p>We can stack everything together in the function below.</p>
 
 </div>
 </div>
@@ -14893,8 +15003,36 @@ so we will give in a search query and scrape the resulting data to a <code>DataF
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="n">matches</span> <span class="o">=</span> <span class="n">driver</span><span class="o">.</span><span class="n">find_elements</span><span class="p">(</span><span class="n">By</span><span class="o">.</span><span class="n">XPATH</span><span class="p">,</span> <span class="s2">"//div[@id='results']/ul/li"</span><span class="p">)</span>
-<span class="nb">len</span><span class="p">(</span><span class="n">matches</span><span class="p">)</span>
+<div class=" highlight hl-python"><pre><span></span><span class="k">def</span> <span class="nf">prepareData</span><span class="p">(</span><span class="n">lang1</span><span class="p">,</span> <span class="n">lang2</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="n">input_lang</span><span class="p">,</span> <span class="n">output_lang</span><span class="p">,</span> <span class="n">pairs</span> <span class="o">=</span> <span class="n">readLangs</span><span class="p">(</span><span class="n">lang1</span><span class="p">,</span> <span class="n">lang2</span><span class="p">,</span> <span class="n">reverse</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Read </span><span class="si">%s</span><span class="s2"> sentence pairs"</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">pairs</span><span class="p">))</span>
+    <span class="n">pairs</span> <span class="o">=</span> <span class="n">filterPairs</span><span class="p">(</span><span class="n">pairs</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Trimmed to </span><span class="si">%s</span><span class="s2"> sentence pairs"</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">pairs</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Counting words..."</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">pair</span> <span class="ow">in</span> <span class="n">pairs</span><span class="p">:</span>
+        <span class="n">input_lang</span><span class="o">.</span><span class="n">addSentence</span><span class="p">(</span><span class="n">pair</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">output_lang</span><span class="o">.</span><span class="n">addSentence</span><span class="p">(</span><span class="n">pair</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Counted words:"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">input_lang</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">input_lang</span><span class="o">.</span><span class="n">n_words</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">output_lang</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">output_lang</span><span class="o">.</span><span class="n">n_words</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">input_lang</span><span class="p">,</span> <span class="n">output_lang</span><span class="p">,</span> <span class="n">pairs</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-python"><pre><span></span><span class="n">input_lang</span><span class="p">,</span> <span class="n">output_lang</span><span class="p">,</span> <span class="n">pairs</span> <span class="o">=</span> <span class="n">prepareData</span><span class="p">(</span><span class="s1">'eng'</span><span class="p">,</span> <span class="s1">'fra'</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">pairs</span><span class="p">))</span>
 </pre></div>
 
      </div>
@@ -14909,8 +15047,28 @@ so we will give in a search query and scrape the resulting data to a <code>DataF
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>Great! We were able to use XPATH to get the results from PHI. But how do we then go to the next page?</p>
-<p>How would you do this in a browser? You would scroll down to the bottom of the page and then click on "Next". We can do the same in <code>Selenium</code>.</p>
+<h2 id="The-Seq2Seq-Model">The Seq2Seq Model<a class="anchor-link" href="#The-Seq2Seq-Model">&#182;</a></h2><p><strong>Useful vocabulary for this section</strong></p>
+<ul>
+<li>Recurrent Neural Net (RNN) - a network that uses its output sequence as an input for subsequent steps.</li>
+<li>Seq2Seq network  or Encoder Decoder network - a model consisting of two RNNs: (1) an encoder that reads an input sequence and outputs a vector encoding of the sequence and (2) a decoder that reads the encoded vector and outputs a sequence.</li>
+<li>Hidden state - a layer of arbitrary size which comes does not come at the beginning or end of the network.</li>
+<li><a href="https://pytorch.org/docs/stable/generated/torch.nn.GRU.html">Gated Recurrent Unit (GRU)</a> - a layer of a neural net which consturcts a hidden state at a given time step <code>t</code> from the hidden state of time <code>t-1</code>. It uses a <code>tanh</code> activation and passes all parameters through a sigmoid function.</li>
+</ul>
+<p>The Seq2Seq netowrk allows us to input an arbitrarily sized sentence in any language into the encoder and have the vector representation produced by the encoder be decoded into another language by the decoder.</p>
+<p>This architecture, though now used in other contexts, is ideal for machine translation. Even though words may come in different orders or are represented by multiple words in a target language, the transformer will be able to render a translation because it is decoding an vector encoded in a multilingual space.</p>
+<p>Finally, this architecture is easy(ish) to implement in <code>PyTorch</code> as we can first build the encoder and then the decoder then put them together.</p>
+
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h3 id="The-Encoder">The Encoder<a class="anchor-link" href="#The-Encoder">&#182;</a></h3><p>This piece of our Seq2Seq network will be a RNN that outputs some value for every word from the input sentence. For every input word, it will putput a vector and a hidden state, which will be used for the next imput word.</p>
 
 </div>
 </div>
@@ -14923,90 +15081,22 @@ so we will give in a search query and scrape the resulting data to a <code>DataF
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="c1"># this code scrolls to the bottom of the page</span>
-<span class="n">driver</span><span class="o">.</span><span class="n">execute_script</span><span class="p">(</span><span class="s2">"window.scrollTo(0, document.body.scrollHeight);"</span><span class="p">)</span> <span class="c1"># this is running a JavaScript snippet, not Python code</span>
-</pre></div>
+<div class=" highlight hl-python"><pre><span></span><span class="k">class</span> <span class="nc">EncoderRNN</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_size</span><span class="p">,</span> <span class="n">hidden_size</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">EncoderRNN</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hidden_size</span> <span class="o">=</span> <span class="n">hidden_size</span>
 
-     </div>
-</div>
-</div>
-</div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">embedding</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Embedding</span><span class="p">(</span><span class="n">input_size</span><span class="p">,</span> <span class="n">hidden_size</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gru</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">GRU</span><span class="p">(</span><span class="n">hidden_size</span><span class="p">,</span> <span class="n">hidden_size</span><span class="p">)</span>
 
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="n">take_and_show_screenshot</span><span class="p">(</span><span class="n">driver</span><span class="p">,</span> <span class="s2">"scroll_down.png"</span><span class="p">)</span> <span class="c1"># nice we scrolled, now we need to click</span>
-</pre></div>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">hidden</span><span class="p">):</span>
+        <span class="n">embedded</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">embedding</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">embedded</span>
+        <span class="n">output</span><span class="p">,</span> <span class="n">hidden</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gru</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">hidden</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">output</span><span class="p">,</span> <span class="n">hidden</span>
 
-     </div>
-</div>
-</div>
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="n">next_button</span> <span class="o">=</span> <span class="n">driver</span><span class="o">.</span><span class="n">find_element</span><span class="p">(</span><span class="n">By</span><span class="o">.</span><span class="n">XPATH</span><span class="p">,</span> <span class="s2">"//a[@class='plink pg_n']"</span><span class="p">)</span> <span class="c1"># find the next button</span>
-<span class="n">next_button</span><span class="o">.</span><span class="n">click</span><span class="p">()</span> <span class="c1"># click!</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="n">take_and_show_screenshot</span><span class="p">(</span><span class="n">driver</span><span class="p">,</span> <span class="s2">"next_page.png"</span><span class="p">)</span> <span class="c1"># and now were on the next page</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="n">matches</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">find_elements</span><span class="p">(</span><span class="n">By</span><span class="o">.</span><span class="n">XPATH</span><span class="p">,</span> <span class="s2">"//div[@id='results']/ul/li"</span><span class="p">))</span> <span class="c1"># lets do the same as above, get the matches and add them to our list</span>
-<span class="nb">len</span><span class="p">(</span><span class="n">matches</span><span class="p">)</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="n">matches</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">text</span> <span class="c1"># huh? why's it not working</span>
+    <span class="k">def</span> <span class="nf">initHidden</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hidden_size</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -15021,9 +15111,36 @@ so we will give in a search query and scrape the resulting data to a <code>DataF
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>What is a <code>StaleElementReferenceException</code> and why is the error so weird looking? <code>Selenium</code> is not a native Python package. It is written in another programming language called Java (not JavaScript either). As a result, it is not being run in the same runtime as our normal Python code. Thankfully, we don't really need to worry about this until there's an error, at which point, we won't be able to see exactly what caused the error.</p>
-<p>In this case, a <code>StaleElementReferenceException</code> refers to what happens when <strong><code>Selenium</code> attempts to access a web element that is no longer on the page</strong> This can happen a lot, especially if you are scrolling and moving between pages. To deal with this problem, we need to get all of the text/data we need from a web element on its original page.</p>
+<p>To break this down a bit:</p>
+<ul>
+<li>Input is embedded by <a href="https://pytorch.org/docs/stable/generated/torch.nn.Embedding.html#torch.nn.Embedding"><code>nn.Embedding</code></a></li>
+<li>Input embedding is activated with <a href="https://pytorch.org/docs/stable/generated/torch.nn.GRU.html"><code>nn.GRU</code></a> and previous hidden state</li>
+<li><code>nn.GRU</code> outputs an output embedding and another hidden state</li>
+</ul>
 
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h3 id="The-Decoder">The Decoder<a class="anchor-link" href="#The-Decoder">&#182;</a></h3><p>This piece of out Seq2Seq network will be another RNN that take the encoder output (the embedding held by the variable <code>output</code> above) and will output a sequence of words that weill constitute the translation. We'll touch on two different type of decoders: a simple decoder and an attention decoder.</p>
+
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h4 id="Simple-decoder">Simple decoder<a class="anchor-link" href="#Simple-decoder">&#182;</a></h4>
 </div>
 </div>
 </div>
@@ -15035,30 +15152,25 @@ so we will give in a search query and scrape the resulting data to a <code>DataF
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="c1"># a function that strips all of the relevant info</span>
-<span class="k">def</span> <span class="nf">get_relevant_info</span><span class="p">(</span><span class="n">one_match</span><span class="p">):</span>
-    <span class="n">text</span> <span class="o">=</span> <span class="n">one_match</span><span class="o">.</span><span class="n">text</span>
-    <span class="n">cite_link</span> <span class="o">=</span> <span class="n">one_match</span><span class="o">.</span><span class="n">find_element</span><span class="p">(</span><span class="n">By</span><span class="o">.</span><span class="n">TAG_NAME</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">)</span><span class="o">.</span><span class="n">get_attribute</span><span class="p">(</span><span class="s2">"href"</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">text</span><span class="p">,</span> <span class="n">cite_link</span>
-</pre></div>
+<div class=" highlight hl-python"><pre><span></span><span class="k">class</span> <span class="nc">DecoderRNN</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hidden_size</span><span class="p">,</span> <span class="n">output_size</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">DecoderRNN</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hidden_size</span> <span class="o">=</span> <span class="n">hidden_size</span>
 
-     </div>
-</div>
-</div>
-</div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">embedding</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Embedding</span><span class="p">(</span><span class="n">output_size</span><span class="p">,</span> <span class="n">hidden_size</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gru</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">GRU</span><span class="p">(</span><span class="n">hidden_size</span><span class="p">,</span> <span class="n">hidden_size</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">hidden_size</span><span class="p">,</span> <span class="n">output_size</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">softmax</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">LogSoftmax</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="n">matches</span> <span class="o">=</span> <span class="n">driver</span><span class="o">.</span><span class="n">find_elements</span><span class="p">(</span><span class="n">By</span><span class="o">.</span><span class="n">XPATH</span><span class="p">,</span> <span class="s2">"//div[@id='results']/ul/li"</span><span class="p">)</span>
-<span class="k">for</span> <span class="n">one_match</span> <span class="ow">in</span> <span class="n">matches</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">get_relevant_info</span><span class="p">(</span><span class="n">one_match</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">hidden</span><span class="p">):</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">embedding</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+        <span class="n">output</span><span class="p">,</span> <span class="n">hidden</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gru</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">hidden</span><span class="p">)</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">out</span><span class="p">(</span><span class="n">output</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+        <span class="k">return</span> <span class="n">output</span><span class="p">,</span> <span class="n">hidden</span>
+
+    <span class="k">def</span> <span class="nf">initHidden</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hidden_size</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -15073,7 +15185,28 @@ so we will give in a search query and scrape the resulting data to a <code>DataF
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Pulling-it-all-together">Pulling it all together<a class="anchor-link" href="#Pulling-it-all-together">&#182;</a></h2><p>Now that we've explore the first few pages of results, we are ready to pull all of the pieces together and create a short script that will take in a user query and scrape all of the relevant data from it.</p>
+<p>Let's break this down again:</p>
+<ul>
+<li>Input (output of encoder) is embedded by <code>nn.Embedding</code></li>
+<li>This embedding is activated by <a href="https://pytorch.org/docs/stable/generated/torch.nn.ReLU.html#torch.nn.ReLU"><code>F.ReLu</code></a></li>
+<li>An output and hidden state are created by passing the activated embedding through <code>nn.GRU</code></li>
+<li>The hidden state is saved and the output is passed through a softmax layer to create probabilities from the embedding</li>
+</ul>
+
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h4 id="Attention-Decoder">Attention Decoder<a class="anchor-link" href="#Attention-Decoder">&#182;</a></h4><p><strong>What is attention</strong></p>
+<p>As we see above, the only language data being passed from the encoder to the decoder is the single vector output of <code>nn.GRU</code>. <em>Attention</em> allows the decoder to pay attention to different parts of the encoder's output. First, we'll calculate <em>attention weights</em> with a <a href="https://pytorch.org/docs/stable/generated/torch.nn.Linear.html#torch.nn.Linear"><code>nn.Linear</code></a> layer using the decoder's input and the hidden state as inputs. These will be multiplied by the encoder output to create a combination (called <code>attn_applied</code> below) that will contain information about a specific part of the input and then help the decoder to choose the correct output words.</p>
+<p><em>Note</em>: There are also other forms of attention, for example 'local attention'.</p>
+<p>See here for a diagram: <a href="https://pytorch.org/tutorials/intermediate/seq2seq_translation_tutorial.html">https://pytorch.org/tutorials/intermediate/seq2seq_translation_tutorial.html</a></p>
 
 </div>
 </div>
@@ -15086,69 +15219,41 @@ so we will give in a search query and scrape the resulting data to a <code>DataF
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="kn">import</span> <span class="nn">re</span>
+<div class=" highlight hl-python"><pre><span></span><span class="k">class</span> <span class="nc">AttnDecoderRNN</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hidden_size</span><span class="p">,</span> <span class="n">output_size</span><span class="p">,</span> <span class="n">dropout_p</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="n">MAX_LENGTH</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">AttnDecoderRNN</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hidden_size</span> <span class="o">=</span> <span class="n">hidden_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_size</span> <span class="o">=</span> <span class="n">output_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dropout_p</span> <span class="o">=</span> <span class="n">dropout_p</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_length</span> <span class="o">=</span> <span class="n">max_length</span>
 
-<span class="c1"># last thing: there's a tracker at the top of the page that tells us how many results to expect</span>
-<span class="c1"># we can get the text there to make sure we have everything</span>
-<span class="n">num_matches_raw</span> <span class="o">=</span> <span class="n">driver</span><span class="o">.</span><span class="n">find_element</span><span class="p">(</span><span class="n">By</span><span class="o">.</span><span class="n">XPATH</span><span class="p">,</span> <span class="s2">"//div[@id='stats']"</span><span class="p">)</span><span class="o">.</span><span class="n">text</span>
-<span class="n">num_matches</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s1">'(\d+) results'</span><span class="p">,</span> <span class="n">num_matches_raw</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
-<span class="n">num_matches</span>
-</pre></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">embedding</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Embedding</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hidden_size</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">attn</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hidden_size</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_length</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">attn_combine</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hidden_size</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hidden_size</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dropout_p</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gru</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">GRU</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hidden_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hidden_size</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hidden_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_size</span><span class="p">)</span>
 
-     </div>
-</div>
-</div>
-</div>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">hidden</span><span class="p">,</span> <span class="n">encoder_outputs</span><span class="p">):</span>
+        <span class="n">embedded</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">embedding</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">embedded</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span><span class="p">(</span><span class="n">embedded</span><span class="p">)</span>
 
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="kn">from</span> <span class="nn">selenium.common.exceptions</span> <span class="kn">import</span> <span class="n">NoSuchElementException</span> <span class="c1"># the error when the search bar isnt there</span>
+        <span class="n">attn_weights</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">attn</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">((</span><span class="n">embedded</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">hidden</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="mi">1</span><span class="p">)),</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">attn_applied</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">bmm</span><span class="p">(</span><span class="n">attn_weights</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+                                 <span class="n">encoder_outputs</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
 
-<span class="c1"># reinitializing the driver</span>
-<span class="n">driver</span> <span class="o">=</span> <span class="n">gs</span><span class="o">.</span><span class="n">Chrome</span><span class="p">()</span>
-<span class="n">driver</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">phi_url</span><span class="p">)</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">((</span><span class="n">embedded</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">attn_applied</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">attn_combine</span><span class="p">(</span><span class="n">output</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
-<span class="c1"># click on enter button</span>
-<span class="n">enter</span> <span class="o">=</span> <span class="n">driver</span><span class="o">.</span><span class="n">find_element</span><span class="p">(</span><span class="n">By</span><span class="o">.</span><span class="n">CLASS_NAME</span><span class="p">,</span> <span class="s2">"lic"</span><span class="p">)</span>
-<span class="n">enter</span><span class="o">.</span><span class="n">click</span><span class="p">()</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+        <span class="n">output</span><span class="p">,</span> <span class="n">hidden</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gru</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">hidden</span><span class="p">)</span>
 
-<span class="c1"># click on "Word Search"</span>
-<span class="n">list_elements</span> <span class="o">=</span> <span class="n">driver</span><span class="o">.</span><span class="n">find_elements</span><span class="p">(</span><span class="n">By</span><span class="o">.</span><span class="n">TAG_NAME</span><span class="p">,</span> <span class="s2">"li"</span><span class="p">)</span>
-<span class="n">list_elements</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">click</span><span class="p">()</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">log_softmax</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">out</span><span class="p">(</span><span class="n">output</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">output</span><span class="p">,</span> <span class="n">hidden</span><span class="p">,</span> <span class="n">attn_weights</span>
 
-<span class="c1"># submit search term</span>
-<span class="n">search_term</span> <span class="o">=</span> <span class="s2">"artifex"</span> <span class="c1"># feel free to change</span>
-<span class="n">search_bar</span> <span class="o">=</span> <span class="n">driver</span><span class="o">.</span><span class="n">find_element</span><span class="p">(</span><span class="n">By</span><span class="o">.</span><span class="n">TAG_NAME</span><span class="p">,</span> <span class="s2">"input"</span><span class="p">)</span>
-<span class="n">search_bar</span><span class="o">.</span><span class="n">send_keys</span><span class="p">(</span><span class="n">search_term</span><span class="p">)</span>
-<span class="n">search_bar</span><span class="o">.</span><span class="n">send_keys</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
-
-<span class="c1"># get number of matches</span>
-<span class="n">num_matches_raw</span> <span class="o">=</span> <span class="n">driver</span><span class="o">.</span><span class="n">find_element</span><span class="p">(</span><span class="n">By</span><span class="o">.</span><span class="n">XPATH</span><span class="p">,</span> <span class="s2">"//div[@id='stats']"</span><span class="p">)</span><span class="o">.</span><span class="n">text</span>
-<span class="n">num_matches</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s1">'(\d+) results'</span><span class="p">,</span> <span class="n">num_matches_raw</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">"Number of expected results: "</span><span class="p">,</span> <span class="n">num_matches</span><span class="p">)</span>
-
-<span class="n">matches</span> <span class="o">=</span> <span class="p">[]</span>
-<span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-    <span class="n">page_matches</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">driver</span><span class="o">.</span><span class="n">find_elements</span><span class="p">(</span><span class="n">By</span><span class="o">.</span><span class="n">XPATH</span><span class="p">,</span> <span class="s2">"//div[@id='results']/ul/li"</span><span class="p">):</span>
-        <span class="n">page_matches</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">get_relevant_info</span><span class="p">(</span><span class="n">element</span><span class="p">))</span>
-    <span class="n">matches</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">page_matches</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">"Current length: "</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">matches</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">"Current length: "</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">matches</span><span class="p">))</span>
-    <span class="n">driver</span><span class="o">.</span><span class="n">execute_script</span><span class="p">(</span><span class="s2">"window.scrollTo(0, document.body.scrollHeight);"</span><span class="p">)</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">next_button</span> <span class="o">=</span> <span class="n">driver</span><span class="o">.</span><span class="n">find_element</span><span class="p">(</span><span class="n">By</span><span class="o">.</span><span class="n">XPATH</span><span class="p">,</span> <span class="s2">"//a[@class='plink pg_n']"</span><span class="p">)</span>
-        <span class="n">next_button</span><span class="o">.</span><span class="n">click</span><span class="p">()</span>
-    <span class="k">except</span> <span class="n">NoSuchElementException</span><span class="p">:</span>
-        <span class="k">break</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="s2">"Final length: "</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">matches</span><span class="p">))</span>
+    <span class="k">def</span> <span class="nf">initHidden</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hidden_size</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -15163,9 +15268,26 @@ so we will give in a search query and scrape the resulting data to a <code>DataF
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>Huh! Why didn't it work? What is a <code>NoSuchElementException</code>. Like the last error we saw, the traceback is not very helpful, though it does tell us what XPATH set off the error: <code>//div[@id='stats']</code>.</p>
-<p>This is getting thrown because <code>Selenium</code> is trying to find the results amount before it as loaded into the page. We get a <code>NoSuchElementException</code> because, to <code>Selenium</code> in the moment that we run this line: <code>driver.find_element(By.XPATH, "//div[@id='stats']").text</code>, the XPATH <code>//div[@id='stats']</code> does not exist, likely nothing exists on the page.</p>
-<p>As a result, we need to have the <code>driver</code> wait before we run that code. We can use <code>time.sleep</code> to do this. <em>Note</em>: There are ways of doing this in <code>Selenium</code> as well, but they're a little hit-or-miss, and most programmers use <code>time.sleep</code> anyways.</p>
+<p>We can break this down the same way as with the simple decoder:</p>
+<ul>
+<li>First, the input is embedded using <code>nn.Embedding</code></li>
+<li>Then, we pass this input into our attention layer using <code>nn.Linear</code> with the input as our x and the previous hidden state as the A in the linear transformation: $y = xA^{T} + b$ (this should look familiar from linear regression)</li>
+<li>From here, we follow the same steps as in the simple decoder. The attention layer is then combined with the original imput embedding and activated by <code>F.ReLu</code></li>
+<li>As above, an output and hidden state are created by passing the activated embedding through <code>nn.GRU</code></li>
+<li>The hidden state is saved and the output is passed through a softmax layer to create probabilities from the embedding</li>
+</ul>
+
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h2 id="Training">Training<a class="anchor-link" href="#Training">&#182;</a></h2><p>Now that we understand the architecture of our network, we can begin training. First, we'll need to convert the indices of our sentence pairs into tensors which can be input into our encoder.</p>
 
 </div>
 </div>
@@ -15178,58 +15300,18 @@ so we will give in a search query and scrape the resulting data to a <code>DataF
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="kn">import</span> <span class="nn">time</span>
+<div class=" highlight hl-python"><pre><span></span><span class="k">def</span> <span class="nf">indexesFromSentence</span><span class="p">(</span><span class="n">lang</span><span class="p">,</span> <span class="n">sentence</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">lang</span><span class="o">.</span><span class="n">word2index</span><span class="p">[</span><span class="n">word</span><span class="p">]</span> <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">sentence</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">' '</span><span class="p">)]</span>
 
-<span class="c1"># reinitializing the driver</span>
-<span class="n">driver</span> <span class="o">=</span> <span class="n">gs</span><span class="o">.</span><span class="n">Chrome</span><span class="p">()</span>
-<span class="n">driver</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">phi_url</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">tensorFromSentence</span><span class="p">(</span><span class="n">lang</span><span class="p">,</span> <span class="n">sentence</span><span class="p">):</span>
+    <span class="n">indexes</span> <span class="o">=</span> <span class="n">indexesFromSentence</span><span class="p">(</span><span class="n">lang</span><span class="p">,</span> <span class="n">sentence</span><span class="p">)</span>
+    <span class="n">indexes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">EOS_token</span><span class="p">)</span> <span class="c1"># appending the EOS token!</span>
+    <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">indexes</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">long</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
-<span class="c1"># click on enter button</span>
-<span class="n">enter</span> <span class="o">=</span> <span class="n">driver</span><span class="o">.</span><span class="n">find_element</span><span class="p">(</span><span class="n">By</span><span class="o">.</span><span class="n">CLASS_NAME</span><span class="p">,</span> <span class="s2">"lic"</span><span class="p">)</span>
-<span class="n">enter</span><span class="o">.</span><span class="n">click</span><span class="p">()</span>
-
-<span class="c1"># click on "Word Search"</span>
-<span class="n">list_elements</span> <span class="o">=</span> <span class="n">driver</span><span class="o">.</span><span class="n">find_elements</span><span class="p">(</span><span class="n">By</span><span class="o">.</span><span class="n">TAG_NAME</span><span class="p">,</span> <span class="s2">"li"</span><span class="p">)</span>
-<span class="n">list_elements</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">click</span><span class="p">()</span>
-
-<span class="c1"># submit search term</span>
-<span class="n">search_term</span> <span class="o">=</span> <span class="s2">"artifex"</span> <span class="c1"># feel free to change</span>
-<span class="n">search_bar</span> <span class="o">=</span> <span class="n">driver</span><span class="o">.</span><span class="n">find_element</span><span class="p">(</span><span class="n">By</span><span class="o">.</span><span class="n">TAG_NAME</span><span class="p">,</span> <span class="s2">"input"</span><span class="p">)</span>
-<span class="n">search_bar</span><span class="o">.</span><span class="n">send_keys</span><span class="p">(</span><span class="n">search_term</span><span class="p">)</span>
-<span class="n">search_bar</span><span class="o">.</span><span class="n">send_keys</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
-
-<span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="c1"># wait for the search to load</span>
-
-<span class="c1"># get number of matches</span>
-<span class="n">num_matches_raw</span> <span class="o">=</span> <span class="n">driver</span><span class="o">.</span><span class="n">find_element</span><span class="p">(</span><span class="n">By</span><span class="o">.</span><span class="n">XPATH</span><span class="p">,</span> <span class="s2">"//div[@id='stats']"</span><span class="p">)</span><span class="o">.</span><span class="n">text</span>
-<span class="n">num_matches</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s1">'(\d+) results'</span><span class="p">,</span> <span class="n">num_matches_raw</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">"Number of expected results: "</span><span class="p">,</span> <span class="n">num_matches</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">()</span>
-
-<span class="n">matches</span> <span class="o">=</span> <span class="p">[]</span>
-<span class="n">current_page</span> <span class="o">=</span> <span class="mi">1</span>
-
-<span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">find_element</span><span class="p">(</span><span class="n">By</span><span class="o">.</span><span class="n">XPATH</span><span class="p">,</span> <span class="s2">"//div[@id='stats']"</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
-    <span class="n">page_matches</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">driver</span><span class="o">.</span><span class="n">find_elements</span><span class="p">(</span><span class="n">By</span><span class="o">.</span><span class="n">XPATH</span><span class="p">,</span> <span class="s2">"//div[@id='results']/ul/li"</span><span class="p">):</span>
-        <span class="n">page_matches</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">get_relevant_info</span><span class="p">(</span><span class="n">element</span><span class="p">))</span>
-    <span class="n">matches</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">page_matches</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">"Current length: "</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">matches</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">"Current page: "</span><span class="p">,</span> <span class="n">current_page</span><span class="p">)</span>
-    <span class="n">driver</span><span class="o">.</span><span class="n">execute_script</span><span class="p">(</span><span class="s2">"window.scrollTo(0, document.body.scrollHeight);"</span><span class="p">)</span>
-    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># wait for the scroll to load</span>
-
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">next_button</span> <span class="o">=</span> <span class="n">driver</span><span class="o">.</span><span class="n">find_element</span><span class="p">(</span><span class="n">By</span><span class="o">.</span><span class="n">XPATH</span><span class="p">,</span> <span class="s2">"//a[@class='plink pg_n']"</span><span class="p">)</span>
-        <span class="n">next_button</span><span class="o">.</span><span class="n">click</span><span class="p">()</span>
-        <span class="n">current_page</span> <span class="o">+=</span> <span class="mi">1</span>
-        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="c1"># wait for the next page to load</span>
-    <span class="k">except</span> <span class="n">NoSuchElementException</span><span class="p">:</span>
-        <span class="k">break</span> <span class="c1"># break out of loop if the next button isnt there</span>
-    <span class="nb">print</span><span class="p">()</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="s2">"Final length: "</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">matches</span><span class="p">))</span> <span class="c1"># takes about a minute to run</span>
+<span class="k">def</span> <span class="nf">tensorsFromPair</span><span class="p">(</span><span class="n">pair</span><span class="p">):</span>
+    <span class="n">input_tensor</span> <span class="o">=</span> <span class="n">tensorFromSentence</span><span class="p">(</span><span class="n">input_lang</span><span class="p">,</span> <span class="n">pair</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">target_tensor</span> <span class="o">=</span> <span class="n">tensorFromSentence</span><span class="p">(</span><span class="n">output_lang</span><span class="p">,</span> <span class="n">pair</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">input_tensor</span><span class="p">,</span> <span class="n">target_tensor</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -15244,7 +15326,8 @@ so we will give in a search query and scrape the resulting data to a <code>DataF
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Curating-our-data">Curating our data<a class="anchor-link" href="#Curating-our-data">&#182;</a></h2><p>We now have a lot of useful datafrom PHI, but it's not in a useful format. For example, there are some results that have one passage of three lines and others that have multiple passages and citations in them. This is a problem. To create a good dataset, the shape of our data should be homogenous.</p>
+<h3 id="Training-function">Training function<a class="anchor-link" href="#Training-function">&#182;</a></h3><p>There is one final concept we need to explore before training our Seq2Seq network: <em>Teacher forcing</em>. Teacher forcing is when we use the true target outputs (in this case, the correct English language indices) as the each next input, instead of using the decoder's guess for that input. This allows the network to converge faster but can be abused if the dataset is not robust enough. We see that teacher-forced networks have much better understanding of grammar rules, but can stray from the correct translation easier. In fact, it has learned to represent the output grammar well, but not how to create the translation.</p>
+<p><code>PyTorch</code> lets us implement teacher forcing with a simple <code>if</code> statement. Too, we can use <code>teacher_forcing_ratio</code> to control how much teacher forcing we want to use.</p>
 
 </div>
 </div>
@@ -15257,8 +15340,64 @@ so we will give in a search query and scrape the resulting data to a <code>DataF
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="c1"># one match per result</span>
-<span class="n">matches</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<div class=" highlight hl-python"><pre><span></span><span class="n">teacher_forcing_ratio</span> <span class="o">=</span> <span class="mf">0.5</span>
+
+<span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="n">input_tensor</span><span class="p">,</span> <span class="n">target_tensor</span><span class="p">,</span> <span class="n">encoder</span><span class="p">,</span> <span class="n">decoder</span><span class="p">,</span> <span class="n">encoder_optimizer</span><span class="p">,</span> <span class="n">decoder_optimizer</span><span class="p">,</span> <span class="n">criterion</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="n">MAX_LENGTH</span><span class="p">):</span>
+    <span class="n">encoder_hidden</span> <span class="o">=</span> <span class="n">encoder</span><span class="o">.</span><span class="n">initHidden</span><span class="p">()</span> <span class="c1"># initalized the encoder</span>
+
+    <span class="c1"># zeroes encoder/decoder gradients</span>
+    <span class="n">encoder_optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
+    <span class="n">decoder_optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
+
+    <span class="c1"># input tensors from `tensorsFromPair`</span>
+    <span class="n">input_length</span> <span class="o">=</span> <span class="n">input_tensor</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">target_length</span> <span class="o">=</span> <span class="n">target_tensor</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">encoder_outputs</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">max_length</span><span class="p">,</span> <span class="n">encoder</span><span class="o">.</span><span class="n">hidden_size</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
+
+    <span class="n">loss</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="c1"># encoder forward pass</span>
+    <span class="k">for</span> <span class="n">ei</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">input_length</span><span class="p">):</span>
+        <span class="n">encoder_output</span><span class="p">,</span> <span class="n">encoder_hidden</span> <span class="o">=</span> <span class="n">encoder</span><span class="p">(</span>
+            <span class="n">input_tensor</span><span class="p">[</span><span class="n">ei</span><span class="p">],</span> <span class="n">encoder_hidden</span><span class="p">)</span>
+        <span class="n">encoder_outputs</span><span class="p">[</span><span class="n">ei</span><span class="p">]</span> <span class="o">=</span> <span class="n">encoder_output</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+
+    <span class="c1"># add SOS token to beginning of decoder input</span>
+    <span class="n">decoder_input</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([[</span><span class="n">SOS_token</span><span class="p">]],</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
+
+    <span class="n">decoder_hidden</span> <span class="o">=</span> <span class="n">encoder_hidden</span>
+
+    <span class="c1"># decoder forward pass</span>
+    <span class="n">use_teacher_forcing</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">teacher_forcing_ratio</span> <span class="k">else</span> <span class="kc">False</span>
+
+    <span class="k">if</span> <span class="n">use_teacher_forcing</span><span class="p">:</span>
+        <span class="c1"># Teacher forcing: Feed the target as the next input</span>
+        <span class="k">for</span> <span class="n">di</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">target_length</span><span class="p">):</span>
+            <span class="n">decoder_output</span><span class="p">,</span> <span class="n">decoder_hidden</span><span class="p">,</span> <span class="n">decoder_attention</span> <span class="o">=</span> <span class="n">decoder</span><span class="p">(</span>
+                <span class="n">decoder_input</span><span class="p">,</span> <span class="n">decoder_hidden</span><span class="p">,</span> <span class="n">encoder_outputs</span><span class="p">)</span>
+            <span class="n">loss</span> <span class="o">+=</span> <span class="n">criterion</span><span class="p">(</span><span class="n">decoder_output</span><span class="p">,</span> <span class="n">target_tensor</span><span class="p">[</span><span class="n">di</span><span class="p">])</span>
+            <span class="n">decoder_input</span> <span class="o">=</span> <span class="n">target_tensor</span><span class="p">[</span><span class="n">di</span><span class="p">]</span>  <span class="c1"># Teacher forcing</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Without teacher forcing: use its own predictions as the next input</span>
+        <span class="k">for</span> <span class="n">di</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">target_length</span><span class="p">):</span>
+            <span class="n">decoder_output</span><span class="p">,</span> <span class="n">decoder_hidden</span><span class="p">,</span> <span class="n">decoder_attention</span> <span class="o">=</span> <span class="n">decoder</span><span class="p">(</span>
+                <span class="n">decoder_input</span><span class="p">,</span> <span class="n">decoder_hidden</span><span class="p">,</span> <span class="n">encoder_outputs</span><span class="p">)</span>
+            <span class="n">topv</span><span class="p">,</span> <span class="n">topi</span> <span class="o">=</span> <span class="n">decoder_output</span><span class="o">.</span><span class="n">topk</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">decoder_input</span> <span class="o">=</span> <span class="n">topi</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span>  <span class="c1"># detach from history as input</span>
+
+            <span class="n">loss</span> <span class="o">+=</span> <span class="n">criterion</span><span class="p">(</span><span class="n">decoder_output</span><span class="p">,</span> <span class="n">target_tensor</span><span class="p">[</span><span class="n">di</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">decoder_input</span><span class="o">.</span><span class="n">item</span><span class="p">()</span> <span class="o">==</span> <span class="n">EOS_token</span><span class="p">:</span>
+                <span class="k">break</span>
+
+    <span class="c1"># backward pass for whole Seq2Seq network</span>
+    <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+
+    <span class="n">encoder_optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+    <span class="n">decoder_optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">loss</span><span class="o">.</span><span class="n">item</span><span class="p">()</span> <span class="o">/</span> <span class="n">target_length</span>
 </pre></div>
 
      </div>
@@ -15274,8 +15413,22 @@ so we will give in a search query and scrape the resulting data to a <code>DataF
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="c1"># multiple matches in one result</span>
-<span class="n">matches</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+<div class=" highlight hl-python"><pre><span></span><span class="c1"># utilities for timing</span>
+
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">math</span>
+
+<span class="k">def</span> <span class="nf">asMinutes</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">s</span> <span class="o">/</span> <span class="mi">60</span><span class="p">)</span>
+    <span class="n">s</span> <span class="o">-=</span> <span class="n">m</span> <span class="o">*</span> <span class="mi">60</span>
+    <span class="k">return</span> <span class="s1">'</span><span class="si">%d</span><span class="s1">m </span><span class="si">%d</span><span class="s1">s'</span> <span class="o">%</span> <span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">timeSince</span><span class="p">(</span><span class="n">since</span><span class="p">,</span> <span class="n">percent</span><span class="p">):</span>
+    <span class="n">now</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">now</span> <span class="o">-</span> <span class="n">since</span>
+    <span class="n">es</span> <span class="o">=</span> <span class="n">s</span> <span class="o">/</span> <span class="p">(</span><span class="n">percent</span><span class="p">)</span>
+    <span class="n">rs</span> <span class="o">=</span> <span class="n">es</span> <span class="o">-</span> <span class="n">s</span>
+    <span class="k">return</span> <span class="s1">'</span><span class="si">%s</span><span class="s1"> (- </span><span class="si">%s</span><span class="s1">)'</span> <span class="o">%</span> <span class="p">(</span><span class="n">asMinutes</span><span class="p">(</span><span class="n">s</span><span class="p">),</span> <span class="n">asMinutes</span><span class="p">(</span><span class="n">rs</span><span class="p">))</span>
 </pre></div>
 
      </div>
@@ -15291,8 +15444,21 @@ so we will give in a search query and scrape the resulting data to a <code>DataF
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="n">splits</span> <span class="o">=</span> <span class="n">matches</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span> <span class="c1"># \n is a helpful delimiter</span>
-<span class="nb">len</span><span class="p">(</span><span class="n">splits</span><span class="p">)</span>
+<div class=" highlight hl-python"><pre><span></span><span class="c1"># utilities for plotting</span>
+
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="c1">#plt.switch_backend('agg')</span>
+<span class="kn">import</span> <span class="nn">matplotlib.ticker</span> <span class="k">as</span> <span class="nn">ticker</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+
+<span class="k">def</span> <span class="nf">showPlot</span><span class="p">(</span><span class="n">points</span><span class="p">):</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+    <span class="c1"># this locator puts ticks at regular intervals</span>
+    <span class="n">loc</span> <span class="o">=</span> <span class="n">ticker</span><span class="o">.</span><span class="n">MultipleLocator</span><span class="p">(</span><span class="n">base</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_major_locator</span><span class="p">(</span><span class="n">loc</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">points</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -15308,7 +15474,43 @@ so we will give in a search query and scrape the resulting data to a <code>DataF
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="n">splits</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="c1"># citation info</span>
+<div class=" highlight hl-python"><pre><span></span><span class="c1"># evaluation will do a foward pass in each RNN and return the words which are most likely</span>
+<span class="c1"># to be the translation of the input sentence as determined by softmax probabilities</span>
+
+<span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="n">encoder</span><span class="p">,</span> <span class="n">decoder</span><span class="p">,</span> <span class="n">sentence</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="n">MAX_LENGTH</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+        <span class="n">input_tensor</span> <span class="o">=</span> <span class="n">tensorFromSentence</span><span class="p">(</span><span class="n">input_lang</span><span class="p">,</span> <span class="n">sentence</span><span class="p">)</span>
+        <span class="n">input_length</span> <span class="o">=</span> <span class="n">input_tensor</span><span class="o">.</span><span class="n">size</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">encoder_hidden</span> <span class="o">=</span> <span class="n">encoder</span><span class="o">.</span><span class="n">initHidden</span><span class="p">()</span>
+
+        <span class="n">encoder_outputs</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">max_length</span><span class="p">,</span> <span class="n">encoder</span><span class="o">.</span><span class="n">hidden_size</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">ei</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">input_length</span><span class="p">):</span>
+            <span class="n">encoder_output</span><span class="p">,</span> <span class="n">encoder_hidden</span> <span class="o">=</span> <span class="n">encoder</span><span class="p">(</span><span class="n">input_tensor</span><span class="p">[</span><span class="n">ei</span><span class="p">],</span>
+                                                     <span class="n">encoder_hidden</span><span class="p">)</span>
+            <span class="n">encoder_outputs</span><span class="p">[</span><span class="n">ei</span><span class="p">]</span> <span class="o">+=</span> <span class="n">encoder_output</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">decoder_input</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([[</span><span class="n">SOS_token</span><span class="p">]],</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>  <span class="c1"># SOS</span>
+
+        <span class="n">decoder_hidden</span> <span class="o">=</span> <span class="n">encoder_hidden</span>
+
+        <span class="n">decoded_words</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">decoder_attentions</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">max_length</span><span class="p">,</span> <span class="n">max_length</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">di</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">max_length</span><span class="p">):</span>
+            <span class="n">decoder_output</span><span class="p">,</span> <span class="n">decoder_hidden</span><span class="p">,</span> <span class="n">decoder_attention</span> <span class="o">=</span> <span class="n">decoder</span><span class="p">(</span>
+                <span class="n">decoder_input</span><span class="p">,</span> <span class="n">decoder_hidden</span><span class="p">,</span> <span class="n">encoder_outputs</span><span class="p">)</span>
+            <span class="n">decoder_attentions</span><span class="p">[</span><span class="n">di</span><span class="p">]</span> <span class="o">=</span> <span class="n">decoder_attention</span><span class="o">.</span><span class="n">data</span>
+            <span class="n">topv</span><span class="p">,</span> <span class="n">topi</span> <span class="o">=</span> <span class="n">decoder_output</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">topk</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">topi</span><span class="o">.</span><span class="n">item</span><span class="p">()</span> <span class="o">==</span> <span class="n">EOS_token</span><span class="p">:</span>
+                <span class="n">decoded_words</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">'&lt;EOS&gt;'</span><span class="p">)</span>
+                <span class="k">break</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">decoded_words</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">output_lang</span><span class="o">.</span><span class="n">index2word</span><span class="p">[</span><span class="n">topi</span><span class="o">.</span><span class="n">item</span><span class="p">()])</span>
+
+            <span class="n">decoder_input</span> <span class="o">=</span> <span class="n">topi</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">decoded_words</span><span class="p">,</span> <span class="n">decoder_attentions</span><span class="p">[:</span><span class="n">di</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
 </pre></div>
 
      </div>
@@ -15324,182 +15526,15 @@ so we will give in a search query and scrape the resulting data to a <code>DataF
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="n">citations</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">"[A-z\s]+, [A-z\s]+ (.*)"</span><span class="p">,</span> <span class="n">splits</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># regex to separate the numbers</span>
-<span class="n">citations</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">', '</span><span class="p">)</span> <span class="c1"># split on the comma</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>Now that we've separated out the citations and the passages, we need to align the citation to correct passage. Unfortunately, each line is just separated by <code>\n</code> and there is nothing separating the passages from each other. Thus, below I show how we can separate the raw data into a list of lists of three lines each, using the <code>range</code> function.</p>
-
-</div>
-</div>
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="c1"># where to start</span>
-               <span class="nb">len</span><span class="p">(</span><span class="n">splits</span><span class="p">[</span><span class="mi">1</span><span class="p">:]),</span> <span class="c1"># how far to go</span>
-               <span class="mi">3</span> <span class="c1"># how many steps to take for each iteration</span>
-               <span class="p">):</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="c1"># where to start</span>
-               <span class="nb">len</span><span class="p">(</span><span class="n">splits</span><span class="p">[</span><span class="mi">1</span><span class="p">:]),</span> <span class="c1"># how far to go</span>
-               <span class="mi">3</span> <span class="c1"># how many steps to take for each iteration</span>
-               <span class="p">):</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">splits</span><span class="p">[</span><span class="mi">1</span><span class="p">:][</span><span class="n">i</span><span class="p">])</span> <span class="c1"># current line</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">splits</span><span class="p">[</span><span class="mi">1</span><span class="p">:][</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span> <span class="c1"># the next line</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">splits</span><span class="p">[</span><span class="mi">1</span><span class="p">:][</span><span class="n">i</span><span class="o">+</span><span class="mi">2</span><span class="p">])</span> <span class="c1"># the last line</span>
-    <span class="nb">print</span><span class="p">()</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="p">[</span><span class="n">splits</span><span class="p">[</span><span class="mi">1</span><span class="p">:][</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="mi">3</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">splits</span><span class="p">[</span><span class="mi">1</span><span class="p">:]),</span> <span class="mi">3</span><span class="p">)]</span> <span class="c1"># as a list comprehension</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="n">passages</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">splits</span><span class="p">[</span><span class="mi">1</span><span class="p">:][</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="mi">3</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">splits</span><span class="p">[</span><span class="mi">1</span><span class="p">:]),</span> <span class="mi">3</span><span class="p">)]</span> <span class="c1"># joining lists into a single passage</span>
-<span class="n">passages</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="n">citations</span> <span class="o">=</span> <span class="n">citations</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">', '</span><span class="p">)</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">citations</span><span class="p">,</span> <span class="n">passages</span><span class="p">))</span> <span class="c1"># zip to align them</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="c1"># full code for formatting all of the info</span>
-<span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
-<span class="k">for</span> <span class="n">one_match</span> <span class="ow">in</span> <span class="n">matches</span><span class="p">:</span>
-    <span class="n">splits</span> <span class="o">=</span> <span class="n">one_match</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
-    <span class="n">author_title</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">"[A-z\s]+, [A-z\s]+"</span><span class="p">,</span> <span class="n">splits</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-    <span class="n">author</span> <span class="o">=</span> <span class="n">author_title</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">', '</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">title</span> <span class="o">=</span> <span class="n">author_title</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">', '</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
-
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">splits</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">4</span><span class="p">:</span> <span class="c1"># the case where we have more than one passage per result</span>
-        <span class="c1"># same code as above</span>
-        <span class="n">citations</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">"[A-z\s]+, [A-z\s]+ (.*)"</span><span class="p">,</span> <span class="n">splits</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-        <span class="n">citations</span> <span class="o">=</span> <span class="n">citations</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">', '</span><span class="p">)</span>
-        <span class="n">passages</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">splits</span><span class="p">[</span><span class="mi">1</span><span class="p">:][</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="mi">3</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">splits</span><span class="p">[</span><span class="mi">1</span><span class="p">:]),</span> <span class="mi">3</span><span class="p">)]</span>
-        <span class="n">data</span><span class="o">.</span><span class="n">extend</span><span class="p">([(</span><span class="n">title</span><span class="p">,</span> <span class="n">author</span><span class="p">,</span> <span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">one_match</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">citations</span><span class="p">,</span> <span class="n">passages</span><span class="p">))])</span>
-    <span class="k">else</span><span class="p">:</span> <span class="c1"># the case were one result has one match</span>
-        <span class="c1"># this is new</span>
-        <span class="n">citation</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">"[A-z\s]+, [A-z\s\.]+ (.*)"</span><span class="p">,</span> <span class="n">splits</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># gets citation the same way</span>
-        <span class="n">text</span> <span class="o">=</span> <span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">splits</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span> <span class="c1"># collects and joins text</span>
-        <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">title</span><span class="p">,</span> <span class="n">author</span><span class="p">,</span> <span class="n">citation</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">one_match</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-
-<span class="c1"># putting it in a dataframe</span>
-<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">"title"</span><span class="p">,</span> <span class="s2">"author"</span><span class="p">,</span> <span class="s2">"citation"</span><span class="p">,</span> <span class="s2">"text"</span><span class="p">,</span> <span class="s2">"cite_link"</span><span class="p">])</span>
-<span class="n">df</span>
+<div class=" highlight hl-python"><pre><span></span><span class="k">def</span> <span class="nf">evaluateRandomly</span><span class="p">(</span><span class="n">encoder</span><span class="p">,</span> <span class="n">decoder</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+        <span class="n">pair</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">pairs</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">'&gt;'</span><span class="p">,</span> <span class="n">pair</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">'='</span><span class="p">,</span> <span class="n">pair</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">output_words</span><span class="p">,</span> <span class="n">attentions</span> <span class="o">=</span> <span class="n">evaluate</span><span class="p">(</span><span class="n">encoder</span><span class="p">,</span> <span class="n">decoder</span><span class="p">,</span> <span class="n">pair</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">output_sentence</span> <span class="o">=</span> <span class="s1">' '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_words</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">'&lt;'</span><span class="p">,</span> <span class="n">output_sentence</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">''</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -15514,7 +15549,14 @@ so we will give in a search query and scrape the resulting data to a <code>DataF
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Final-function">Final function<a class="anchor-link" href="#Final-function">&#182;</a></h2><p>Yay! We got the data we wanted and in the form we wanted it in. Now, we can create a function that just takes in the user query and gives back the results.</p>
+<p>Training will proceed as follows:</p>
+<ul>
+<li>Start the timer</li>
+<li>Initialize optimizers and loss function</li>
+<li>Create training batch</li>
+<li>Record loss for plotting</li>
+<li>Evaluate our model</li>
+</ul>
 
 </div>
 </div>
@@ -15527,79 +15569,71 @@ so we will give in a search query and scrape the resulting data to a <code>DataF
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="k">def</span> <span class="nf">search_phi</span><span class="p">(</span><span class="n">query</span><span class="p">):</span>
-    <span class="c1"># collecting the data</span>
-    <span class="n">driver</span> <span class="o">=</span> <span class="n">gs</span><span class="o">.</span><span class="n">Chrome</span><span class="p">()</span>
-    <span class="n">driver</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">phi_url</span><span class="p">)</span>
+<div class=" highlight hl-python"><pre><span></span><span class="k">def</span> <span class="nf">trainIters</span><span class="p">(</span><span class="n">encoder</span><span class="p">,</span> <span class="n">decoder</span><span class="p">,</span> <span class="n">n_iters</span><span class="p">,</span> <span class="n">print_every</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">plot_every</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">learning_rate</span><span class="o">=</span><span class="mf">0.01</span><span class="p">):</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="n">plot_losses</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">print_loss_total</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># Reset every print_every</span>
+    <span class="n">plot_loss_total</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># Reset every plot_every</span>
 
-    <span class="c1"># click on enter button</span>
-    <span class="n">enter</span> <span class="o">=</span> <span class="n">driver</span><span class="o">.</span><span class="n">find_element</span><span class="p">(</span><span class="n">By</span><span class="o">.</span><span class="n">CLASS_NAME</span><span class="p">,</span> <span class="s2">"lic"</span><span class="p">)</span>
-    <span class="n">enter</span><span class="o">.</span><span class="n">click</span><span class="p">()</span>
+    <span class="n">encoder_optimizer</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">SGD</span><span class="p">(</span><span class="n">encoder</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="n">learning_rate</span><span class="p">)</span>
+    <span class="n">decoder_optimizer</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">SGD</span><span class="p">(</span><span class="n">decoder</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="n">learning_rate</span><span class="p">)</span>
+    <span class="n">training_pairs</span> <span class="o">=</span> <span class="p">[</span><span class="n">tensorsFromPair</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">pairs</span><span class="p">))</span>
+                      <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_iters</span><span class="p">)]</span>
+    <span class="n">criterion</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">NLLLoss</span><span class="p">()</span>
 
-    <span class="c1"># click on "Word Search"</span>
-    <span class="n">list_elements</span> <span class="o">=</span> <span class="n">driver</span><span class="o">.</span><span class="n">find_elements</span><span class="p">(</span><span class="n">By</span><span class="o">.</span><span class="n">TAG_NAME</span><span class="p">,</span> <span class="s2">"li"</span><span class="p">)</span>
-    <span class="n">list_elements</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">click</span><span class="p">()</span>
+    <span class="k">for</span> <span class="nb">iter</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_iters</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">training_pair</span> <span class="o">=</span> <span class="n">training_pairs</span><span class="p">[</span><span class="nb">iter</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">input_tensor</span> <span class="o">=</span> <span class="n">training_pair</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">target_tensor</span> <span class="o">=</span> <span class="n">training_pair</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 
-    <span class="c1"># submit search term</span>
-    <span class="n">search_term</span> <span class="o">=</span> <span class="n">query</span>
-    <span class="n">search_bar</span> <span class="o">=</span> <span class="n">driver</span><span class="o">.</span><span class="n">find_element</span><span class="p">(</span><span class="n">By</span><span class="o">.</span><span class="n">TAG_NAME</span><span class="p">,</span> <span class="s2">"input"</span><span class="p">)</span>
-    <span class="n">search_bar</span><span class="o">.</span><span class="n">send_keys</span><span class="p">(</span><span class="n">search_term</span><span class="p">)</span>
-    <span class="n">search_bar</span><span class="o">.</span><span class="n">send_keys</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+        <span class="n">loss</span> <span class="o">=</span> <span class="n">train</span><span class="p">(</span><span class="n">input_tensor</span><span class="p">,</span> <span class="n">target_tensor</span><span class="p">,</span> <span class="n">encoder</span><span class="p">,</span>
+                     <span class="n">decoder</span><span class="p">,</span> <span class="n">encoder_optimizer</span><span class="p">,</span> <span class="n">decoder_optimizer</span><span class="p">,</span> <span class="n">criterion</span><span class="p">)</span>
+        <span class="n">print_loss_total</span> <span class="o">+=</span> <span class="n">loss</span>
+        <span class="n">plot_loss_total</span> <span class="o">+=</span> <span class="n">loss</span>
 
-    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="c1"># wait for the search to load</span>
+        <span class="k">if</span> <span class="nb">iter</span> <span class="o">%</span> <span class="n">print_every</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">print_loss_avg</span> <span class="o">=</span> <span class="n">print_loss_total</span> <span class="o">/</span> <span class="n">print_every</span>
+            <span class="n">print_loss_total</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">'</span><span class="si">%s</span><span class="s1"> (</span><span class="si">%d</span><span class="s1"> </span><span class="si">%d%%</span><span class="s1">) </span><span class="si">%.4f</span><span class="s1">'</span> <span class="o">%</span> <span class="p">(</span><span class="n">timeSince</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="nb">iter</span> <span class="o">/</span> <span class="n">n_iters</span><span class="p">),</span>
+                                         <span class="nb">iter</span><span class="p">,</span> <span class="nb">iter</span> <span class="o">/</span> <span class="n">n_iters</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="n">print_loss_avg</span><span class="p">))</span>
 
-    <span class="c1"># get number of matches</span>
-    <span class="n">num_matches_raw</span> <span class="o">=</span> <span class="n">driver</span><span class="o">.</span><span class="n">find_element</span><span class="p">(</span><span class="n">By</span><span class="o">.</span><span class="n">XPATH</span><span class="p">,</span> <span class="s2">"//div[@id='stats']"</span><span class="p">)</span><span class="o">.</span><span class="n">text</span>
-    <span class="n">num_matches</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s1">'(\d+) results'</span><span class="p">,</span> <span class="n">num_matches_raw</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">"Number of expected results: "</span><span class="p">,</span> <span class="n">num_matches</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">iter</span> <span class="o">%</span> <span class="n">plot_every</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">plot_loss_avg</span> <span class="o">=</span> <span class="n">plot_loss_total</span> <span class="o">/</span> <span class="n">plot_every</span>
+            <span class="n">plot_losses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">plot_loss_avg</span><span class="p">)</span>
+            <span class="n">plot_loss_total</span> <span class="o">=</span> <span class="mi">0</span>
 
-    <span class="n">matches</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">current_page</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">showPlot</span><span class="p">(</span><span class="n">plot_losses</span><span class="p">)</span>
+</pre></div>
 
-    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">driver</span><span class="o">.</span><span class="n">find_element</span><span class="p">(</span><span class="n">By</span><span class="o">.</span><span class="n">XPATH</span><span class="p">,</span> <span class="s2">"//div[@id='stats']"</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
-        <span class="n">page_matches</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">driver</span><span class="o">.</span><span class="n">find_elements</span><span class="p">(</span><span class="n">By</span><span class="o">.</span><span class="n">XPATH</span><span class="p">,</span> <span class="s2">"//div[@id='results']/ul/li"</span><span class="p">):</span>
-            <span class="n">page_matches</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">get_relevant_info</span><span class="p">(</span><span class="n">element</span><span class="p">))</span>
-        <span class="n">matches</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">page_matches</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">"Current length: "</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">matches</span><span class="p">))</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">"Current page: "</span><span class="p">,</span> <span class="n">current_page</span><span class="p">)</span>
-        <span class="n">driver</span><span class="o">.</span><span class="n">execute_script</span><span class="p">(</span><span class="s2">"window.scrollTo(0, document.body.scrollHeight);"</span><span class="p">)</span>
-        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># wait for the scroll to load</span>
+     </div>
+</div>
+</div>
+</div>
 
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">next_button</span> <span class="o">=</span> <span class="n">driver</span><span class="o">.</span><span class="n">find_element</span><span class="p">(</span><span class="n">By</span><span class="o">.</span><span class="n">XPATH</span><span class="p">,</span> <span class="s2">"//a[@class='plink pg_n']"</span><span class="p">)</span>
-            <span class="n">next_button</span><span class="o">.</span><span class="n">click</span><span class="p">()</span>
-            <span class="n">current_page</span> <span class="o">+=</span> <span class="mi">1</span>
-            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="c1"># wait for the next page to load</span>
-        <span class="k">except</span> <span class="n">NoSuchElementException</span><span class="p">:</span>
-            <span class="k">break</span> <span class="c1"># break out of loop if the next button isnt there</span>
-        <span class="nb">print</span><span class="p">()</span>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h3 id="Training-results">Training results<a class="anchor-link" href="#Training-results">&#182;</a></h3>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-python"><pre><span></span><span class="n">hidden_size</span> <span class="o">=</span> <span class="mi">256</span>
+<span class="n">encoder1</span> <span class="o">=</span> <span class="n">EncoderRNN</span><span class="p">(</span><span class="n">input_lang</span><span class="o">.</span><span class="n">n_words</span><span class="p">,</span> <span class="n">hidden_size</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+<span class="n">attn_decoder1</span> <span class="o">=</span> <span class="n">AttnDecoderRNN</span><span class="p">(</span><span class="n">hidden_size</span><span class="p">,</span> <span class="n">output_lang</span><span class="o">.</span><span class="n">n_words</span><span class="p">,</span> <span class="n">dropout_p</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
 
-    <span class="nb">print</span><span class="p">(</span><span class="s2">"Final length: "</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">matches</span><span class="p">))</span> <span class="c1"># takes about a minute to run</span>
-
-    <span class="c1"># format data</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">one_match</span> <span class="ow">in</span> <span class="n">matches</span><span class="p">:</span>
-        <span class="n">splits</span> <span class="o">=</span> <span class="n">one_match</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
-        <span class="n">author_title</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">"[A-z\s]+, [A-z\s]+"</span><span class="p">,</span> <span class="n">splits</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-        <span class="n">author</span> <span class="o">=</span> <span class="n">author_title</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">', '</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="n">title</span> <span class="o">=</span> <span class="n">author_title</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">', '</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
-
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">splits</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">4</span><span class="p">:</span> <span class="c1"># the case where we have more than one passage per result</span>
-            <span class="c1"># same code as above</span>
-            <span class="n">citations</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">"[A-z\s]+, [A-z\s]+ (.*)"</span><span class="p">,</span> <span class="n">splits</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-            <span class="n">citations</span> <span class="o">=</span> <span class="n">citations</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">', '</span><span class="p">)</span>
-            <span class="n">passages</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">splits</span><span class="p">[</span><span class="mi">1</span><span class="p">:][</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="mi">3</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">splits</span><span class="p">[</span><span class="mi">1</span><span class="p">:]),</span> <span class="mi">3</span><span class="p">)]</span>
-            <span class="n">data</span><span class="o">.</span><span class="n">extend</span><span class="p">([(</span><span class="n">title</span><span class="p">,</span> <span class="n">author</span><span class="p">,</span> <span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">one_match</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">citations</span><span class="p">,</span> <span class="n">passages</span><span class="p">))])</span>
-        <span class="k">else</span><span class="p">:</span> <span class="c1"># the case were one result has one match</span>
-            <span class="c1"># this is new</span>
-            <span class="n">citation</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">"[A-z\s]+, [A-z\s\.]+ (.*)"</span><span class="p">,</span> <span class="n">splits</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># gets citation the same way</span>
-            <span class="n">text</span> <span class="o">=</span> <span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">splits</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span> <span class="c1"># collects and joins text</span>
-            <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">title</span><span class="p">,</span> <span class="n">author</span><span class="p">,</span> <span class="n">citation</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">one_match</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
-
-    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">"title"</span><span class="p">,</span> <span class="s2">"author"</span><span class="p">,</span> <span class="s2">"citation"</span><span class="p">,</span> <span class="s2">"text"</span><span class="p">,</span> <span class="s2">"cite_link"</span><span class="p">])</span>
+<span class="n">trainIters</span><span class="p">(</span><span class="n">encoder1</span><span class="p">,</span> <span class="n">attn_decoder1</span><span class="p">,</span> <span class="mi">75000</span><span class="p">,</span> <span class="n">print_every</span><span class="o">=</span><span class="mi">5000</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -15615,8 +15649,35 @@ so we will give in a search query and scrape the resulting data to a <code>DataF
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="n">instar_df</span> <span class="o">=</span> <span class="n">search_phi</span><span class="p">(</span><span class="s2">"instar"</span><span class="p">)</span>
-<span class="n">instar_df</span>
+<div class=" highlight hl-python"><pre><span></span><span class="n">evaluateRandomly</span><span class="p">(</span><span class="n">encoder1</span><span class="p">,</span> <span class="n">attn_decoder1</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h2 id="Trying-a-new-dataset">Trying a new dataset<a class="anchor-link" href="#Trying-a-new-dataset">&#182;</a></h2><p>As I mentioned above, now that we have implemented the transformer architecture, we can now try on a new dataset, one that is comparable in size to the forthcoming Dakota dataset. In this example, I'll use <a href="https://en.wikipedia.org/wiki/Breton_language">Breton</a>, the language spoken by people living in Brittany, currently a part of France but was at one point a sovereign nation with its own language. Breton is one of the few remaining Celtic languages, the speakers of which, similar to the native Americans of this continent thousands of years later, were murdered and forcibly assimilated into Roman society during the conquests of Julius Caesar. Though speakers of Breton are few, they are tenacious.</p>
+
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-python"><pre><span></span><span class="err">!</span><span class="n">unzip</span> <span class="n">bre</span><span class="o">-</span><span class="n">eng</span><span class="o">.</span><span class="n">zip</span>
 </pre></div>
 
      </div>
@@ -15632,8 +15693,8 @@ so we will give in a search query and scrape the resulting data to a <code>DataF
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="c1"># visualize titles</span>
-<span class="n">instar_df</span><span class="o">.</span><span class="n">title</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()[:</span><span class="mi">10</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="s2">"barh"</span><span class="p">)</span>
+<div class=" highlight hl-python"><pre><span></span><span class="c1"># there's some extra cleaning we need to do to make it look like the eng-fre dataset...</span>
+<span class="err">!</span><span class="n">head</span> <span class="n">bre</span><span class="o">.</span><span class="n">txt</span>
 </pre></div>
 
      </div>
@@ -15649,8 +15710,10 @@ so we will give in a search query and scrape the resulting data to a <code>DataF
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="c1"># visualize authors</span>
-<span class="n">instar_df</span><span class="o">.</span><span class="n">author</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()[:</span><span class="mi">10</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="s2">"barh"</span><span class="p">)</span>
+<div class=" highlight hl-python"><pre><span></span><span class="c1"># making a new file which we can pass into the data prep process</span>
+<span class="n">raw</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s1">'bre.txt'</span><span class="p">)</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+<span class="n">clean</span> <span class="o">=</span> <span class="p">[</span><span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s1">'(?=</span><span class="se">\t</span><span class="s1">CC).*'</span><span class="p">,</span><span class="s1">''</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">raw</span><span class="p">]</span>
+<span class="n">clean</span><span class="p">[:</span><span class="mi">10</span><span class="p">]</span>
 </pre></div>
 
      </div>
@@ -15666,7 +15729,9 @@ so we will give in a search query and scrape the resulting data to a <code>DataF
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span>
+<div class=" highlight hl-python"><pre><span></span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">'eng-bre.txt'</span><span class="p">,</span> <span class="s1">'w'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">clean</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -15674,6 +15739,155 @@ so we will give in a search query and scrape the resulting data to a <code>DataF
 </div>
 </div>
 
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-python"><pre><span></span><span class="err">!</span><span class="n">head</span> <span class="n">eng</span><span class="o">-</span><span class="n">bre</span><span class="o">.</span><span class="n">txt</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-python"><pre><span></span><span class="c1"># just need to move this file into the data directory</span>
+<span class="err">!</span><span class="n">cp</span> <span class="n">eng</span><span class="o">-</span><span class="n">bre</span><span class="o">.</span><span class="n">txt</span> <span class="n">data</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-python"><pre><span></span><span class="n">MAX_LENGTH</span> <span class="o">=</span> <span class="mi">50</span>
+
+<span class="k">def</span> <span class="nf">prepareData</span><span class="p">(</span><span class="n">lang1</span><span class="p">,</span> <span class="n">lang2</span><span class="p">,</span> <span class="n">trim</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="n">input_lang</span><span class="p">,</span> <span class="n">output_lang</span><span class="p">,</span> <span class="n">pairs</span> <span class="o">=</span> <span class="n">readLangs</span><span class="p">(</span><span class="n">lang1</span><span class="p">,</span> <span class="n">lang2</span><span class="p">,</span> <span class="n">reverse</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Read </span><span class="si">%s</span><span class="s2"> sentence pairs"</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">pairs</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">trim</span><span class="p">:</span>
+        <span class="n">pairs</span> <span class="o">=</span> <span class="n">filterPairs</span><span class="p">(</span><span class="n">pairs</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"Trimmed to </span><span class="si">%s</span><span class="s2"> sentence pairs"</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">pairs</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Counting words..."</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">pair</span> <span class="ow">in</span> <span class="n">pairs</span><span class="p">:</span>
+        <span class="n">input_lang</span><span class="o">.</span><span class="n">addSentence</span><span class="p">(</span><span class="n">pair</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">output_lang</span><span class="o">.</span><span class="n">addSentence</span><span class="p">(</span><span class="n">pair</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Counted words:"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">input_lang</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">input_lang</span><span class="o">.</span><span class="n">n_words</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">output_lang</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">output_lang</span><span class="o">.</span><span class="n">n_words</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">input_lang</span><span class="p">,</span> <span class="n">output_lang</span><span class="p">,</span> <span class="n">pairs</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-python"><pre><span></span><span class="n">input_lang</span><span class="p">,</span> <span class="n">output_lang</span><span class="p">,</span> <span class="n">pairs</span> <span class="o">=</span> <span class="n">prepareData</span><span class="p">(</span><span class="s1">'eng'</span><span class="p">,</span> <span class="s1">'bre'</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">pairs</span><span class="p">))</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-python"><pre><span></span><span class="n">hidden_size</span> <span class="o">=</span> <span class="mi">256</span>
+<span class="n">encoder1</span> <span class="o">=</span> <span class="n">EncoderRNN</span><span class="p">(</span><span class="n">input_lang</span><span class="o">.</span><span class="n">n_words</span><span class="p">,</span> <span class="n">hidden_size</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+<span class="n">attn_decoder1</span> <span class="o">=</span> <span class="n">AttnDecoderRNN</span><span class="p">(</span><span class="n">hidden_size</span><span class="p">,</span> <span class="n">output_lang</span><span class="o">.</span><span class="n">n_words</span><span class="p">,</span> <span class="n">dropout_p</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+
+<span class="n">trainIters</span><span class="p">(</span><span class="n">encoder1</span><span class="p">,</span> <span class="n">attn_decoder1</span><span class="p">,</span> <span class="mi">75000</span><span class="p">,</span> <span class="n">print_every</span><span class="o">=</span><span class="mi">5000</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-python"><pre><span></span><span class="n">evaluateRandomly</span><span class="p">(</span><span class="n">encoder1</span><span class="p">,</span> <span class="n">attn_decoder1</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-python"><pre><span></span><span class="c1"># can save our models for later using pickle</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">encoder1</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="s2">"breton_english_encoder.p"</span><span class="p">,</span> <span class="s2">"wb"</span> <span class="p">))</span>
+<span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">attn_decoder1</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="s2">"breton_english_decoder.p"</span><span class="p">,</span> <span class="s2">"wb"</span> <span class="p">))</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h1 id="Conclusion">Conclusion<a class="anchor-link" href="#Conclusion">&#182;</a></h1><p>Transformers take advantage of the sequential nature of the textual data which they encode and decode. That said, transformers are able to encode and decode much more than just aligned sentence pairs. In fact, they can be used with any sequential data, which ends up being most data in general. For instance, a system like ChatGPT learns how to answer questions through the same process. The question is encoded by an encoder and then the answer is decoded from that vector space by a decoder. Stable diffusion and other image generation models take in text and encode them and then decode an image.</p>
+<p>Too, encoding embeddings can be swapped out with pre-trained word embeddings from word2vec or GloVe. These encoding layers are amazing resources for research and can offer new insights into large datasets across the social sciences and the humanities.</p>
+
+</div>
+</div>
+</div>
 </div>
 </body>
 

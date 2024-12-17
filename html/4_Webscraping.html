@@ -3,7 +3,7 @@
 <head><meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>12_Transformers</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
+<title>4_Webscraping</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 
 
 
@@ -14572,7 +14572,21 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
     </script>
     <!-- End of mathjax configuration --></head>
 <body class="jp-Notebook" data-jp-theme-light="true" data-jp-theme-name="JupyterLab Light">
-<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h1 id="Webscraping-1:-Webscraping-and-Data-Curation">Webscraping 1: Webscraping and Data Curation<a class="anchor-link" href="#Webscraping-1:-Webscraping-and-Data-Curation">&#182;</a></h1><p>This notebook will be the first step in our exploration of <em>webscraping</em>, the process of (semi-)automatically collecting data from the internet. In this lesson, our goal will be to <strong>populate a dataset of classical Persian poetry</strong>. We will scrape this data from <a href="&quot;https://ganjoor.net&quot;">Ganjoor.net</a>, a repository of classical Persian poetry. This material is not well studied by Western scholars, but is a treasure trove of information about the classical Persian literary tradition.</p>
+<p>Specifically, we are going to use the Python package <code>BeautifulSoup</code>. This tool is designed to parse and traverse the underlying structure of websites, known as Hyper Text Markup Language or HTML, so that we can query it for relevant information. <code>BeautifulSoup</code> is not hard to understand, but it does require a good grounding in HTML. To that end, we will need to jump back and forth between Ganjoor and this notebook to understand how to take advantage of <code>BeautifulSoup</code>. This is to simulate how many of these webscraping projects go. At the end of the day, they are iterative, often involving the programmer to bouce between the webpage and their code several times. Like all of the skills in this course, this requires some practice to get good at.</p>
+<p>Without further delay, let's dive into webscraping!</p>
+
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -14580,10 +14594,9 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="n">sentence_transformers</span> <span class="n">plotly</span> <span class="o">-</span><span class="n">Uq</span>
-<span class="err">!</span><span class="n">pip</span> <span class="n">install</span> <span class="n">llama</span><span class="o">-</span><span class="n">cpp</span><span class="o">-</span><span class="n">python</span> \
-  <span class="o">--</span><span class="n">extra</span><span class="o">-</span><span class="n">index</span><span class="o">-</span><span class="n">url</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">abetlen</span><span class="o">.</span><span class="n">github</span><span class="o">.</span><span class="n">io</span><span class="o">/</span><span class="n">llama</span><span class="o">-</span><span class="n">cpp</span><span class="o">-</span><span class="n">python</span><span class="o">/</span><span class="n">whl</span><span class="o">/</span><span class="n">cu122</span> <span class="o">-</span><span class="n">Uq</span>
-<span class="err">!</span><span class="n">wget</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">tufts</span><span class="o">.</span><span class="n">box</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">shared</span><span class="o">/</span><span class="n">static</span><span class="o">/</span><span class="mi">325</span><span class="n">sgkodnq30ez61ugazvctif6r24hsu</span><span class="o">.</span><span class="n">csv</span> <span class="o">-</span><span class="n">O</span> <span class="n">daf</span><span class="o">.</span><span class="n">csv</span>
+<div class=" highlight hl-python"><pre><span></span><span class="kn">from</span> <span class="nn">bs4</span> <span class="kn">import</span> <span class="n">BeautifulSoup</span> <span class="c1"># BeautifulSoup constructor</span>
+<span class="kn">import</span> <span class="nn">requests</span> <span class="c1"># requests allows us to "ask for" the data at the URL</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span> <span class="c1"># we'l be using pandas to store our collected information</span>
 </pre></div>
 
      </div>
@@ -14598,32 +14611,11 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1 id="Introducing-Semantic-Search">Introducing Semantic Search<a class="anchor-link" href="#Introducing-Semantic-Search">&#182;</a></h1><p>Information retrieval is a large and complicated field. In this notebook, we'll look at the steps involved in a specific information retrieval algorithm called "semantic search," which employs a language model to compare the similarity of a search query to chunks of original data. The steps are as follows:</p>
-<ul>
-<li>Load our model</li>
-<li>Read in and chunk our data</li>
-<li>Embed the chunks</li>
-<li>Take in and embed our user query</li>
-<li>Take the dot product between our user query and our document embeddings</li>
-<li>Align relevant indices with original chunked data</li>
-<li>Return chunks to the user or another process</li>
-</ul>
-<p>At the end of the notebook, we'll pass this information that we retrieved to an LLM and complete a process called Retrieval Augmented Generation (RAG).</p>
-<h2 id="Some-key-concepts-in-semantic-search">Some key concepts in semantic search<a class="anchor-link" href="#Some-key-concepts-in-semantic-search">&#182;</a></h2><p><strong>Masked Language Modeling</strong>: The type of language modeling that we use when we are doing semantic search may seem confusing because it is unlike the modeling we have done in other notebooks. That said, it is more similar that it might seem. As we will see, these models which we use for this task take in a string (usually representing a sentence or paragraph) and output a vector of numbers. Unlike other forms of artificial intelligence, these models do not produce more text or images, rather they tell us the way they interpret language. The vectors and matrices that these models produce (called embeddings) represent how this model understands the text we give it. In training, as opposed to predicting the next token, they are given a full sentence with a random assortment of words in it masked with a special token. The model then has to guess at these masked words. This type fo training gives the models an internal sense of semantic meaning that is more accurate to human understanding than predicting the next word in a sequence of words.</p>
-<p><strong>Dot Product</strong>
-Once we have generated embeddings for our source documents and our query string, we need some way of comparing them. We would like a function that took in a vector and a matrix of specific sizes and return how similar each row of the matrix is to the vector. Thankfully, in linear algebra, this exact function exists. It is called the "dot product" (we will be using the "scaled dot product"). Given a vector, $V$, of size (1, N) and a matrix, $M$, of (M, N), $V \cdot M^{T}$ will return a row vector if size (M, 1). Each element of this new vector will be a score for -1 to 1 (CHECK) which represents how similar $V$ was to a row in $M$. More details to follow.</p>
+<h2 id="Access-the-web-in-Python">Access the web in Python<a class="anchor-link" href="#Access-the-web-in-Python">&#182;</a></h2><p>Although we have the URL to the site that we want to scrape, it may not be obvious how we can access it using Python. That's where the package <code>requests</code> comes in. This library allows us to utilize the core functionality of an internet browser in our Python code. In this case, we'll be using a GET request to get the HTML of a website.</p>
+<p>If you are new to the inner workings of the internet, this may seem confusing. Simply put, when you access a webpage on your computer, your browser sends a GET request (the exact same thing we're going to be doing in all of our webscraping exercises) to the URL. The server which is hosting the URL interprets this request and, if we are allowed, will send back all of the information that we need to recreate the website on our own computer. The browser then renders this information in a way that allows it to be human readable.</p>
+<p>We are going to do the same thing below, but instead of making it human readable, we will keep the raw code of the site and use it to extract valuable information.</p>
+<p>Below we see an example of a GET request.</p>
 
-</div>
-</div>
-</div>
-</div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Data-and-model-prep">Data and model prep<a class="anchor-link" href="#Data-and-model-prep">&#182;</a></h2>
 </div>
 </div>
 </div>
@@ -14635,18 +14627,10 @@ Once we have generated embeddings for our source documents and our query string,
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="c1">#imports</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">torch</span>
-<span class="kn">from</span> <span class="nn">sentence_transformers</span> <span class="kn">import</span> <span class="n">SentenceTransformer</span>
-<span class="kn">from</span> <span class="nn">sklearn.decomposition</span> <span class="kn">import</span> <span class="n">PCA</span>
-<span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">import</span> <span class="nn">nltk</span>
-<span class="n">nltk</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="s1">'punkt'</span><span class="p">)</span>
-<span class="kn">import</span> <span class="nn">plotly.express</span> <span class="k">as</span> <span class="nn">px</span>
-<span class="kn">import</span> <span class="nn">plotly.graph_objects</span> <span class="k">as</span> <span class="nn">go</span>
-<span class="kn">from</span> <span class="nn">llama_cpp</span> <span class="kn">import</span> <span class="n">Llama</span>
-<span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
+<div class=" highlight hl-python"><pre><span></span><span class="n">url</span> <span class="o">=</span> <span class="s2">"https://ganjoor.net"</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span> <span class="c1"># ask requests to "GET" the URL</span>
+<span class="n">response</span> <span class="c1"># 200 means that it worked (as opposed to 404)</span>
+<span class="c1"># but where's the data?</span>
 </pre></div>
 
      </div>
@@ -14662,8 +14646,7 @@ Once we have generated embeddings for our source documents and our query string,
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="c1"># loading our embedding model</span>
-<span class="n">model</span> <span class="o">=</span> <span class="n">SentenceTransformer</span><span class="p">(</span><span class="s1">'BAAI/bge-m3'</span><span class="p">,</span> <span class="n">trust_remote_code</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class=" highlight hl-python"><pre><span></span><span class="n">response</span><span class="o">.</span><span class="n">text</span> <span class="c1"># we can get the raw HTML with the `text` attribute</span>
 </pre></div>
 
      </div>
@@ -14679,44 +14662,9 @@ Once we have generated embeddings for our source documents and our query string,
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">'daf.csv'</span><span class="p">)</span>
-<span class="n">df</span> <span class="c1"># our data</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s1">'footnotes'</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<span class="n">df</span><span class="p">[</span><span class="s1">'sentences'</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">'text'</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">nltk</span><span class="o">.</span><span class="n">sent_tokenize</span><span class="p">)</span>
-<span class="n">sentences</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">explode</span><span class="p">(</span><span class="s1">'sentences'</span><span class="p">)</span>
-<span class="n">mask</span> <span class="o">=</span> <span class="n">sentences</span><span class="p">[</span><span class="s1">'sentences'</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">25</span><span class="p">)</span> <span class="c1"># remvoing all short sentences</span>
-<span class="n">sentences</span> <span class="o">=</span> <span class="n">sentences</span><span class="p">[</span><span class="o">~</span><span class="n">mask</span><span class="p">]</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="n">sentences</span>
+<div class=" highlight hl-python"><pre><span></span><span class="c1"># what this site actually looks like</span>
+<span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">IFrame</span>
+<span class="n">IFrame</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">800</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">400</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -14731,7 +14679,8 @@ Once we have generated embeddings for our source documents and our query string,
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>Below we begin a process called 'embedding', where we take our individual sub-documents (in this case each sentence from the <em>Decline and Fall</em>) and pass them through our embedding model. As mentioned above, this model is trained to output a representation of the given strings in multi-dimensional space in the form of vectors. When we give a model like this mulitple sentences to embed, then it outputs multiple vectors all stacked on top of each other. This vertical arrangement of row vectors is also called a matrix and in this case has the shape: number of inputs x the model's hidden state dimension (this number is created by the model itself in training and we have no control over it).</p>
+<h2 id="Using-our-soup">Using our soup<a class="anchor-link" href="#Using-our-soup">&#182;</a></h2><h3 id="Parsing-the-home-page">Parsing the home page<a class="anchor-link" href="#Parsing-the-home-page">&#182;</a></h3><p>Now that we have some HTML, the fun can begin. This HTML is what <code>BeautifulSoup</code> expects to be given. <code>BeautifulSoup</code> allows us then to call up specific parts of the site that we know are important to our goal. This is where you, as the programmer, need to have a very deep understanding of the structure of the website you are trying to scrape.</p>
+<p>In this case, the poetry for each poet is stored per poet on the front page. Specifically, when a user clicks on a poet's name, they are brought to a list of their works, each of which then takes them to a given work. Because we are trying to get all of the text of all of the works, we're going to need to collect these URLs so that we can get the data from each of them. The first step is to get the URLs for each poet page. We'll see how to do that below.</p>
 
 </div>
 </div>
@@ -14744,13 +14693,7 @@ Once we have generated embeddings for our source documents and our query string,
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="n">embeddings</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span>
-    <span class="n">sentences</span><span class="o">.</span><span class="n">sentences</span><span class="o">.</span><span class="n">to_list</span><span class="p">(),</span> <span class="c1"># our sentences</span>
-    <span class="n">batch_size</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span> <span class="c1"># high batch size = faster embedding, more VRAM</span>
-    <span class="n">show_progress_bar</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="n">device</span><span class="o">=</span><span class="s1">'cuda'</span><span class="p">,</span>
-    <span class="n">normalize_embeddings</span><span class="o">=</span><span class="kc">True</span> <span class="c1"># divides embeddings by their norm, centering the distribution at zero with a variance close to one</span>
-<span class="p">)</span>
+<div class=" highlight hl-python"><pre><span></span><span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="s2">"html.parser"</span><span class="p">)</span> <span class="c1"># constructing the soup of the home page</span>
 </pre></div>
 
      </div>
@@ -14766,39 +14709,7 @@ Once we have generated embeddings for our source documents and our query string,
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="n">embeddings</span><span class="o">.</span><span class="n">shape</span> <span class="c1"># number of documents x the model's hidden state dimension.</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="n">embeddings</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="c1"># single vector representing the first sentence in our list</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="n">embeddings</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span> <span class="c1"># an embedding is a single vector of the size of the model's hidden state</span>
+<div class=" highlight hl-python"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">soup</span><span class="o">.</span><span class="n">prettify</span><span class="p">())</span> <span class="c1"># printing the soup, compare to the visual above</span>
 </pre></div>
 
      </div>
@@ -14813,7 +14724,7 @@ Once we have generated embeddings for our source documents and our query string,
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Digression:-Visualizing-Embeddings">Digression: Visualizing Embeddings<a class="anchor-link" href="#Digression:-Visualizing-Embeddings">&#182;</a></h2><p>To build a better intuition for what embeddings are and how they work, we will see how we can use some simple data visualization techniques to see what these embeddings are telling us about the underlying data.</p>
+<p>From some exploration, I know that all of the poet URLs are held in <code>div</code> tags with a class attribute equal to <code>poet</code>. We can use <code>BeautifulSoup</code> to get all of these in a list.</p>
 
 </div>
 </div>
@@ -14826,11 +14737,8 @@ Once we have generated embeddings for our source documents and our query string,
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="c1"># using PCA to decompose our 1024 long vectors to 2</span>
-<span class="n">pca</span> <span class="o">=</span> <span class="n">PCA</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-<span class="n">pca</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">embeddings</span><span class="p">)</span>
-<span class="n">X</span> <span class="o">=</span> <span class="n">pca</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">embeddings</span><span class="p">)</span>
-<span class="n">X</span><span class="o">.</span><span class="n">shape</span> <span class="c1"># 7880, 1024 -&gt; 7880, 2</span>
+<div class=" highlight hl-python"><pre><span></span><span class="n">poets</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s2">"div"</span><span class="p">,</span> <span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s2">"class"</span><span class="p">:</span> <span class="s2">"poet"</span><span class="p">})</span>
+<span class="nb">len</span><span class="p">(</span><span class="n">poets</span><span class="p">)</span>
 </pre></div>
 
      </div>
@@ -14846,31 +14754,8 @@ Once we have generated embeddings for our source documents and our query string,
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="c1"># making a dataframe to visualize the embeddings with the original sentences</span>
-<span class="n">plotting</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
-    <span class="s1">'x'</span><span class="p">:</span> <span class="n">X</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span>
-    <span class="s1">'y'</span><span class="p">:</span> <span class="n">X</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span>
-    <span class="s1">'title'</span> <span class="p">:</span> <span class="n">sentences</span><span class="o">.</span><span class="n">title</span><span class="p">,</span>
-    <span class="s1">'sentence'</span><span class="p">:</span> <span class="n">sentences</span><span class="o">.</span><span class="n">sentences</span><span class="p">,</span>
-<span class="p">})</span>
-<span class="n">plotting</span><span class="p">[</span><span class="s1">'sentence'</span><span class="p">]</span> <span class="o">=</span> <span class="n">plotting</span><span class="p">[</span><span class="s1">'sentence'</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">wrap</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="p">,</span> <span class="s1">'&lt;br&gt;'</span><span class="p">))</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="n">fig</span> <span class="o">=</span> <span class="n">px</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">plotting</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s1">'x'</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s1">'y'</span><span class="p">,</span> <span class="n">hover_data</span><span class="o">=</span><span class="s1">'sentence'</span><span class="p">)</span>
-<span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<div class=" highlight hl-python"><pre><span></span><span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">poets</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">p</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">"a"</span><span class="p">)[</span><span class="s2">"href"</span><span class="p">])</span>
 </pre></div>
 
      </div>
@@ -14885,20 +14770,8 @@ Once we have generated embeddings for our source documents and our query string,
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>In the scatter plot above, each dot represents a single embedding, which represents a single sentence. As a result, similar sentences tend (though not always) to get grouped together. This created clusters and subclusters of sentences which are similar. This internal structure of the embeddings will help us conduct information retrieval.</p>
-
-</div>
-</div>
-</div>
-</div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Query-based-retrieval">Query-based retrieval<a class="anchor-link" href="#Query-based-retrieval">&#182;</a></h2><p>Now that we have some intuition on how embeddings are working, we can put them to test with a sample query.</p>
-<p>Below we will use an extra string called <code>retrieval_instruction</code>. Often when we are taking in a query from the user, it will be mmuch shorted than the typical length of the documents in our sentence list. This extra string that we prepend to the user query makes the user query more comparable to the documents in our embeddings.</p>
+<p>If you pay close attention to the list above you can see that the first six authors are repeated later and that the last link is to a map. We'd like to exclude these first six, as they are a bit different than the others and we'll alo want to exlude the map, as its content is very different. To that end, we'll use index slicing to restrict our results.</p>
+<p>Importantly, we need to do this because of a pecularity of <em>this</em> website. Most sites will have something like this, where most links follow a general pattern, but that some components need to be manually excluded. So you will need to keep a close eye on corner cases that could throw off your code.</p>
 
 </div>
 </div>
@@ -14911,115 +14784,9 @@ Once we have generated embeddings for our source documents and our query string,
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="n">retrieval_instruction</span> <span class="o">=</span> <span class="s2">"Represent this sentence for searching relevant passages: "</span>
-<span class="n">query</span> <span class="o">=</span> <span class="s1">'Who were the Goths'</span>
-<span class="n">query_embedding</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span>
-    <span class="n">retrieval_instruction</span><span class="o">+</span><span class="n">query</span><span class="p">,</span>
-    <span class="n">device</span><span class="o">=</span><span class="s1">'cuda'</span><span class="p">,</span>
-    <span class="n">normalize_embeddings</span><span class="o">=</span><span class="kc">True</span>
-<span class="p">)</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="n">query_embedding</span><span class="o">.</span><span class="n">shape</span> <span class="c1"># just like a single embedding from above</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="c1"># relevancy measure: dot product</span>
-<span class="n">sim_vector</span> <span class="o">=</span> <span class="n">query_embedding</span> <span class="o">@</span> <span class="n">embeddings</span><span class="o">.</span><span class="n">T</span> <span class="c1"># (m, n) X (n, o) = (m, o), in our case: 1, 1024 X 1024, 7880</span>
-<span class="n">sim_vector</span><span class="o">.</span><span class="n">shape</span> <span class="c1"># 1, 7880, this vector is made of similarity scores between the sentences in our original list of sentences and the query</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="c1"># argsort sorts the array by index</span>
-<span class="n">sim_vector</span><span class="o">.</span><span class="n">argsort</span><span class="p">()</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="n">sim_vector</span><span class="o">.</span><span class="n">argsort</span><span class="p">()[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="c1"># reverses array</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="n">k</span> <span class="o">=</span> <span class="mi">20</span>
-<span class="n">rel_idx</span> <span class="o">=</span> <span class="n">sim_vector</span><span class="o">.</span><span class="n">argsort</span><span class="p">()[::</span><span class="o">-</span><span class="mi">1</span><span class="p">][:</span><span class="n">k</span><span class="p">]</span> <span class="c1"># selects top k indices from the array</span>
-<span class="n">rel_idx</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="n">rel_chunks</span> <span class="o">=</span> <span class="p">[</span><span class="n">sentences</span><span class="o">.</span><span class="n">sentences</span><span class="o">.</span><span class="n">to_list</span><span class="p">()[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">rel_idx</span><span class="p">]</span> <span class="c1"># get back our sentences</span>
-<span class="n">rel_chunks</span> <span class="c1"># read through these to verify that we're on the right track</span>
+<div class=" highlight hl-python"><pre><span></span><span class="n">poet_urls</span> <span class="o">=</span> <span class="p">[</span><span class="n">url</span><span class="o">+</span><span class="n">p</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">"a"</span><span class="p">)[</span><span class="s2">"href"</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">poets</span><span class="p">[</span><span class="mi">6</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span> <span class="c1"># limiting to just the author pages</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">poet_urls</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">"poet_url"</span><span class="p">])</span> <span class="c1"># load the urls into a dataframe</span>
+<span class="n">df</span>
 </pre></div>
 
      </div>
@@ -15034,7 +14801,7 @@ Once we have generated embeddings for our source documents and our query string,
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Retrieval-Augmented-Generation-(RAG)">Retrieval Augmented Generation (RAG)<a class="anchor-link" href="#Retrieval-Augmented-Generation-(RAG)">&#182;</a></h2><p>Semantic search is interesting and useful by itself, but recently it has taken on a new importance. Users of modern AI systems are always seeking new away to condition AI output on relevant data. Semantic search offers a good way of dealing with this problem and thus constitutes the first phase in a process called Retrieval Augmented Generation or RAG, where first we use semantic search to get relevant documents and then pass those relevant documents to an AI in a prompt. Below is a quick example of doing so.</p>
+<h3 id="Parsing-poet-pages">Parsing poet pages<a class="anchor-link" href="#Parsing-poet-pages">&#182;</a></h3><p>Now that we have a <code>DataFrame</code> of all of the poet pages, we can take each one and pull out the URLs to each of their works. We will take each URL, submit a GET request and then parse the content as a new soup object.</p>
 
 </div>
 </div>
@@ -15047,14 +14814,7 @@ Once we have generated embeddings for our source documents and our query string,
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="c1"># loading our LLM</span>
-<span class="n">llm</span> <span class="o">=</span> <span class="n">Llama</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span>
-    <span class="n">repo_id</span><span class="o">=</span><span class="s2">"Qwen/Qwen2-7B-Instruct-GGUF"</span><span class="p">,</span>
-    <span class="n">filename</span><span class="o">=</span><span class="s2">"*q4_0.gguf"</span><span class="p">,</span>
-    <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="n">n_gpu</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
-    <span class="n">n_ctx</span><span class="o">=</span><span class="mi">3000</span>
-<span class="p">)</span>
+<div class=" highlight hl-python"><pre><span></span><span class="n">df</span><span class="o">.</span><span class="n">poet_url</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 </pre></div>
 
      </div>
@@ -15070,58 +14830,9 @@ Once we have generated embeddings for our source documents and our query string,
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="c1"># RAG prompt, feel free to change and see the differences</span>
-<span class="n">base_prompt</span> <span class="o">=</span> <span class="s2">"""</span>
-<span class="s2"># Question answering task</span>
-<span class="s2">You are a helpful AI assistant that is skilled at answering user questions based on a given context.</span>
-
-<span class="s2">## User question</span>
-<span class="si">{question}</span><span class="s2"></span>
-
-<span class="s2">## Context</span>
-<span class="si">{context}</span><span class="s2"></span>
-<span class="s2">"""</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-
-<span class="n">message</span> <span class="o">=</span> <span class="p">[{</span>
-    <span class="s2">"role"</span><span class="p">:</span><span class="s2">"user"</span><span class="p">,</span>
-    <span class="s2">"content"</span><span class="p">:</span><span class="n">base_prompt</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-        <span class="n">question</span><span class="o">=</span><span class="n">query</span><span class="p">,</span> <span class="c1"># our query from above</span>
-        <span class="n">context</span><span class="o">=</span><span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">rel_chunks</span><span class="p">)</span> <span class="c1"># relevant chunks</span>
-    <span class="p">)</span>
-<span class="p">}]</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="c1"># may take some time (~5-10 minutes)</span>
-<span class="n">text</span> <span class="o">=</span> <span class="n">llm</span><span class="o">.</span><span class="n">create_chat_completion</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">max_tokens</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
-</pre></div>
-
-     </div>
-</div>
-</div>
-</div>
-
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
-<div class="jp-Cell-inputWrapper">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-     <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-python"><pre><span></span><span class="n">pprint</span><span class="p">(</span><span class="n">text</span><span class="p">[</span><span class="s1">'choices'</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s1">'message'</span><span class="p">][</span><span class="s1">'content'</span><span class="p">])</span> <span class="c1">#output</span>
+<div class=" highlight hl-python"><pre><span></span><span class="n">roodaki_response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">poet_url</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">roodaki_soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">roodaki_response</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="s2">"html.parser"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">roodaki_soup</span><span class="o">.</span><span class="n">prettify</span><span class="p">())</span>
 </pre></div>
 
      </div>
@@ -15136,11 +14847,502 @@ Once we have generated embeddings for our source documents and our query string,
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h2 id="Conclusion">Conclusion<a class="anchor-link" href="#Conclusion">&#182;</a></h2><p>In this notebook, we have begun an exploration of embeddings, but there is much more to understand. In future lessons, we'll see other ways to use document-level embeddings and train our own embedding model for languages other than English. If you are interested in exploring more, I would check out the documentation of the package we used to load the embedding model: <a href="https://www.sbert.net/">sBERT</a>. They have a lot of good articles on semantic search and other applications.</p>
+<p>Just like the home page, all of the relevant links are kept in <code>div</code> tags with class attribute <code>part-title-block</code>. Importantly, I only knew this because I inspected this HTML very closely.</p>
 
 </div>
 </div>
 </div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-python"><pre><span></span><span class="n">roodaki_soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s2">"div"</span><span class="p">,</span> <span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s2">"class"</span><span class="p">:</span><span class="s2">"part-title-block"</span><span class="p">})</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-python"><pre><span></span><span class="c1"># need the hrefs from these</span>
+<span class="n">poem_tags</span> <span class="o">=</span> <span class="n">roodaki_soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s2">"div"</span><span class="p">,</span> <span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s2">"class"</span><span class="p">:</span><span class="s2">"part-title-block"</span><span class="p">})</span>
+<span class="n">poem_tags</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-python"><pre><span></span><span class="n">poem_tags</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">'a'</span><span class="p">)</span> <span class="c1"># finds just the FIRST instance of the tag</span>
+<span class="c1"># equal to this</span>
+<span class="n">poem_tags</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s1">'a'</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+<span class="c1"># also equal to this</span>
+<span class="n">poem_tags</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">a</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-python"><pre><span></span><span class="c1"># html attr work like dictionaries</span>
+<span class="n">poem_tags</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">a</span><span class="p">[</span><span class="s1">'href'</span><span class="p">]</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-python"><pre><span></span><span class="c1"># can use a loop to get all of the links</span>
+<span class="n">poem_links</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">poem_tags</span><span class="p">:</span>
+    <span class="n">poem_links</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">url</span><span class="o">+</span><span class="n">p</span><span class="o">.</span><span class="n">a</span><span class="p">[</span><span class="s1">'href'</span><span class="p">])</span>
+
+<span class="c1"># this is equal to</span>
+<span class="n">poem_links</span> <span class="o">=</span> <span class="p">[</span><span class="n">url</span><span class="o">+</span><span class="n">p</span><span class="o">.</span><span class="n">a</span><span class="p">[</span><span class="s1">'href'</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">poem_tags</span><span class="p">]</span>
+<span class="n">poem_links</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-python"><pre><span></span><span class="c1"># can turn this into a function so we can use it for all of the urls</span>
+<span class="k">def</span> <span class="nf">get_poet_urls</span><span class="p">(</span><span class="n">p_url</span><span class="p">):</span>
+  <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">p_url</span><span class="p">)</span>
+  <span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="s2">"html.parser"</span><span class="p">)</span>
+  <span class="k">return</span> <span class="p">[</span><span class="n">url</span><span class="o">+</span><span class="n">d</span><span class="o">.</span><span class="n">a</span><span class="p">[</span><span class="s1">'href'</span><span class="p">]</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s2">"div"</span><span class="p">,</span> <span class="n">class_</span><span class="o">=</span><span class="s2">"part-title-block"</span><span class="p">)]</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-python"><pre><span></span><span class="n">url_list</span> <span class="o">=</span> <span class="n">get_poet_urls</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">poet_url</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">url_list</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-python"><pre><span></span><span class="c1"># can take advantage of the df</span>
+<span class="n">df</span><span class="p">[</span><span class="s1">'poem_url'</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">poet_url</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">get_poet_urls</span><span class="p">)</span> <span class="c1"># takes (a lot of) time, why?</span>
+<span class="n">df</span><span class="o">.</span><span class="n">poem_url</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-python"><pre><span></span><span class="c1"># our function returns a list</span>
+<span class="c1"># but we'd like a unique url to be in a unique row</span>
+<span class="n">poem_df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">explode</span><span class="p">(</span><span class="s1">'poem_url'</span><span class="p">)</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span> <span class="c1"># explode separates lists into individual rows</span>
+<span class="n">poem_df</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h3 id="Getting-the-text-of-each-poem">Getting the text of each poem<a class="anchor-link" href="#Getting-the-text-of-each-poem">&#182;</a></h3><p>Just like how we got links from the home page, we were able to get the links to individual poems from the poet pages. Now we have a long list of all of the poem links, but unfortunately, we still need to go one level further: each one of these poem pages contains a list of links to poem excerpts which have the actual text we're interested. We will follow the same pattern as above.</p>
+
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-python"><pre><span></span><span class="n">poem_df</span><span class="o">.</span><span class="n">poem_url</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-python"><pre><span></span><span class="n">baghimande_response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">poem_df</span><span class="o">.</span><span class="n">poem_url</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">baghimande_soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">baghimande_response</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="s2">"html.parser"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">baghimande_soup</span><span class="o">.</span><span class="n">prettify</span><span class="p">())</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-python"><pre><span></span><span class="c1"># all of the excerpts have the class "poem-excerpt"</span>
+<span class="n">baghimande_soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s2">"p"</span><span class="p">,</span> <span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s2">"class"</span><span class="p">:</span><span class="s2">"poem-excerpt"</span><span class="p">})</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-python"><pre><span></span><span class="c1"># as we saw above</span>
+<span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">baghimande_soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s2">"p"</span><span class="p">,</span> <span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s2">"class"</span><span class="p">:</span><span class="s2">"poem-excerpt"</span><span class="p">}):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">a</span><span class="p">[</span><span class="s1">'href'</span><span class="p">])</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-python"><pre><span></span><span class="k">def</span> <span class="nf">get_poem_links</span><span class="p">(</span><span class="n">p_url</span><span class="p">):</span>
+  <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">p_url</span><span class="p">)</span>
+  <span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="s2">"html.parser"</span><span class="p">)</span>
+  <span class="k">return</span> <span class="p">[</span><span class="n">url</span><span class="o">+</span><span class="n">d</span><span class="o">.</span><span class="n">a</span><span class="p">[</span><span class="s1">'href'</span><span class="p">]</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s2">"p"</span><span class="p">,</span> <span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s2">"class"</span><span class="p">:</span><span class="s2">"poem-excerpt"</span><span class="p">})]</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-python"><pre><span></span><span class="n">get_poem_links</span><span class="p">(</span><span class="n">poem_df</span><span class="o">.</span><span class="n">poem_url</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-python"><pre><span></span><span class="n">poem_df</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-python"><pre><span></span><span class="n">poem_df</span><span class="p">[</span><span class="s1">'excerpt_url'</span><span class="p">]</span> <span class="o">=</span> <span class="n">poem_df</span><span class="o">.</span><span class="n">poem_url</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">get_poem_links</span><span class="p">)</span> <span class="c1"># takes (a lot of) time, why?</span>
+<span class="n">poem_df</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-python"><pre><span></span><span class="n">excerpt_df</span> <span class="o">=</span> <span class="n">poem_df</span><span class="o">.</span><span class="n">explode</span><span class="p">(</span><span class="s1">'excerpt_url'</span><span class="p">)</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
+<span class="n">excerpt_df</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h3 id="Collecting-the-data">Collecting the data<a class="anchor-link" href="#Collecting-the-data">&#182;</a></h3><p>We are now finally ready to start collecting the text of each poem excerpt. Unfortunately, as I'm sure you noticed in the last cells, this code is starting to take a long time. It takes about 1 second to send a GET request, to parse it with <code>BeautifulSoup</code> and then get all of the tags we need. This doesn't seem like a long time in isolation, but above we needed to process 512 links, meaning that it took about 512 seconds, which is about eight and a half minutes. Without more advanced software, there's nothing we can do about this.</p>
+<p>To that end, I'll show an example of scraping the text from one of these pages for just one full poem, but be ware there are many, many more. When I ran this on my laptop in full, it look about 6 hours to get all of the text. Thankfully, I saved the data after, meaning we never need to do that again!</p>
+
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-python"><pre><span></span><span class="n">ex_excerpt</span> <span class="o">=</span> <span class="n">excerpt_df</span><span class="o">.</span><span class="n">excerpt_url</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">ex_excerpt</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-python"><pre><span></span><span class="n">ex_excerpt_response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ex_excerpt</span><span class="p">)</span>
+<span class="n">ex_excerpt_soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">ex_excerpt_response</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="s2">"html.parser"</span><span class="p">)</span>
+<span class="n">lines</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s1">'div'</span><span class="p">,</span> <span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s1">'class'</span><span class="p">:</span><span class="s1">'b'</span><span class="p">})</span> <span class="c1"># lines are stored in div tags with class b</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-python"><pre><span></span><span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-python"><pre><span></span><span class="k">def</span> <span class="nf">get_poem_text</span><span class="p">(</span><span class="n">p_url</span><span class="p">):</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">p_url</span><span class="p">)</span>
+    <span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="s2">"html.parser"</span><span class="p">)</span>
+    <span class="n">lines</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s1">'div'</span><span class="p">,</span> <span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s1">'class'</span><span class="p">:</span><span class="s1">'b'</span><span class="p">})</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">text</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">]</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-python"><pre><span></span><span class="c1"># dont run, it will take a long time</span>
+<span class="c1"># excerpt_df['text'] = excerpt_df.poem_links.apply(get_poem_text)</span>
+<span class="c1"># text_df = excerpt_df.explode('text').dropna()</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-python"><pre><span></span><span class="c1"># instead here's the file i ran myself</span>
+<span class="err">!</span><span class="n">wget</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">tufts</span><span class="o">.</span><span class="n">box</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">shared</span><span class="o">/</span><span class="n">static</span><span class="o">/</span><span class="n">a4i21wis54oh4xxwwvi2chrll7sq7gvb</span><span class="o">.</span><span class="n">csv</span> <span class="o">-</span><span class="n">O</span> <span class="n">full_ganjoor_poems</span><span class="o">.</span><span class="n">csv</span>
+<span class="n">ganjoor</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">'full_ganjoor_poems.csv'</span><span class="p">)</span>
+<span class="n">ganjoor</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-python"><pre><span></span><span class="c1"># poems of hafez</span>
+<span class="n">hafez</span> <span class="o">=</span> <span class="n">ganjoor</span><span class="p">[</span><span class="n">ganjoor</span><span class="o">.</span><span class="n">poet</span> <span class="o">==</span> <span class="s1">'hafez'</span><span class="p">]</span>
+<span class="n">hafez</span><span class="o">.</span><span class="n">poem</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+     <div class="CodeMirror cm-s-jupyter">
+<div class=" highlight hl-python"><pre><span></span><span class="n">full_ghazal</span> <span class="o">=</span> <span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ganjoor</span><span class="p">[</span><span class="n">ganjoor</span><span class="o">.</span><span class="n">poem</span> <span class="o">==</span> <span class="s1">'ghazal'</span><span class="p">]</span><span class="o">.</span><span class="n">poem_lines</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span><span class="o">.</span><span class="n">to_list</span><span class="p">())</span>
+<span class="n">full_ghazal</span><span class="p">[:</span><span class="mi">500</span><span class="p">]</span>
+</pre></div>
+
+     </div>
+</div>
+</div>
+</div>
+
 </div>
 </body>
 
