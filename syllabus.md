@@ -25,10 +25,14 @@ Students will be responsible for a final project which is meant to apply any of 
 **Academic Conduct:** Tufts holds its students strictly accountable for adherence to academic integrity. The consequences for violations can be severe. It is critical that you understand the requirements of ethical behavior and academic work as described in Tufts’ Academic Integrity handbook. If you ever have a question about the expectations concerning a particular assignment or project in this course, be sure to ask me for clarification. Each student is responsible for upholding the highest standards of academic integrity, as specified in the [Tufts University policies](http://students.tufts.edu/student-affairs/student-life-policies/academic-integrity-policy). It is the responsibility of each student to understand and comply with these standards, as violations will be sanctioned by penalties ranging from failure on an assignment and the course to dismissal from the school.
 
 **Grading and Course expectations:** 
-* Assignments: 50%
-* Final Project: 30%
-* Class participation: 20%
-    *Nota Bene: Class participation consists of class attendance, office hours and engagement with course material. It is meant to give credit for your interest and enthuiasm with the course material. It is expected that all students will view the required videos, read the required articles, cases, chapters and other materials, and participate in online discussion forums. I reserve the right to adjust a grade if these requirements are not fulfilled.*
+
+<br> &bull; Assignments: 50%
+
+<br> &bull; Final Project: 30%
+
+<br> &bull; Class participation: 20%
+
+*Nota Bene: Class participation consists of class attendance, office hours and engagement with course material. It is meant to give credit for your interest and enthuiasm with the course material. It is expected that all students will view the required videos, read the required articles, cases, chapters and other materials, and participate in online discussion forums. I reserve the right to adjust a grade if these requirements are not fulfilled.*
 
 **Grading range:** A passing grade in the course is C- or better. Course grades will be based on the below ranges (subject to revision during the course):
 
