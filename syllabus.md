@@ -1,7 +1,7 @@
 # CLS 162/DH 120: Natural Language Processing and the Human Record
 ### Spring 2025 (Full Semester)
 
-**Class meetings:** Monday and Wednesdays 3:00 - 4:15 PM, PLACE TBD
+**Class meetings:** Monday and Wednesdays 3:00 - 4:15 PM, Eaton Hall 170
 
 **Instructor:** Peter Nadel, peter.nadel@tufts.edu
 
